@@ -1,7 +1,7 @@
 # t3-formosa-dart
 Dart implementation of Formosa, for use in T3 Vault.
 
-[Formosa]([https://daringfireball.net/projects/markdown/](https://github.com/Yuri-SVB/formosa) is a password format that maximizes the ratio of password strength to user effort.
+[Formosa](https://github.com/Yuri-SVB/formosa) is a password format that maximizes the ratio of password strength to user effort.
 
 The password generation process consists of mapping input into meaningful mnemonic sentences, that are, then, condensed into the password.
 
