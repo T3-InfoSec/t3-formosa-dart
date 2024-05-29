@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:flutter/services.dart';
+import 'dart:io'; 
+import 'dart:async';
 import 'package:tuple/tuple.dart';
-import 'package:collection/collection.dart';
 import 'package:quiver/iterables.dart';
 
 
@@ -72,9 +72,9 @@ class ThemeDict {
     */  
     ///This function should be called after initializing constructor. 
     ///We can't progress with other stuff if we didn't load wanted theme 
-    await rootBundle.loadString('themes/' + default_theme +'.json').then((value) {
-      inner_dict   = jsonDecode(value);
-    });  
+    final file = File('themes/' + default_theme +'.json');
+    final content = await file.readAsString(); 
+    inner_dict   = jsonDecode(content); 
     }
 
     ThemeDict getItem(String key) {
