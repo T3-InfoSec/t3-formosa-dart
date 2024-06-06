@@ -1,4 +1,4 @@
-{
+const Map<String, dynamic> copy_left = {
     "ADJECTIVE": {
         "BIT_LENGTH": 5,
         "LEADS": [],
@@ -30156,4 +30156,4 @@
     "VERSION": {
         "SHA256_CONDENSED_FULL": "38488cb9a685f1075d42beede10e556f7f629f62e52cc8fedb3b110956aa5a33"
     }
-}
+};

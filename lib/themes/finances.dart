@@ -1,4 +1,4 @@
-{
+const Map<String, dynamic> finances = {
     "ADJECTIVE": {
         "BIT_LENGTH": 5,
         "LEADS": [],
@@ -36906,4 +36906,4 @@
     "VERSION": {
         "SHA256_CONDENSED_FULL": "f5eabfb761e29d0ac82e83bdeb3ecf9d90703087ba7388aa9176079fbae5eb81"
     }
-}
+};

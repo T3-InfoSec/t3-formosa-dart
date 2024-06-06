@@ -1,4 +1,4 @@
-{
+const Map<String, dynamic> tourism = {
     "ADJECTIVE": {
         "BIT_LENGTH": 5,
         "LEADS": [],
@@ -31434,4 +31434,4 @@
     "VERSION": {
         "SHA256_CONDENSED_FULL": "1cbc0bcef120fc98571193a0ebe31b3e876f41b19d0dd53bc5895fd3da0c3a2d"
     }
-}
+};

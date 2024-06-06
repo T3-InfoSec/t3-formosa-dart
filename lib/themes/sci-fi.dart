@@ -1,4 +1,4 @@
-{
+const Map<String, dynamic> sci_fi = {
     "ADJECTIVE": {
         "BIT_LENGTH": 5,
         "LED_BY": "OBJECT",
@@ -21898,4 +21898,4 @@
             "warn_about"
         ]
     }
-}
+};

@@ -1,4 +1,4 @@
-{
+const Map<String, dynamic> farm_animals = {
     "ADJECTIVE": {
         "BIT_LENGTH": 6,
         "LEADS": [],
@@ -34204,4 +34204,4 @@
     "VERSION": {
         "SHA256_CONDENSED_FULL": "cbec2cdc3740a06748ddc2288c063d81b6f5680e725aca68ff727fae3b43e730"
     }
-}
+};

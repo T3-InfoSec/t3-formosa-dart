@@ -1,4 +1,4 @@
-{
+const Map<String, dynamic> BIP39 = {
     "FILLING_ORDER": [
         "WORDS"
     ],
@@ -2063,4 +2063,4 @@
     "VERSION": {
         "SHA256_CONDENSED_FULL": ""
     }
-}
+};

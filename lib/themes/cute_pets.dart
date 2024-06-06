@@ -1,4 +1,4 @@
-{
+const Map<String, dynamic> cute_pets = {
     "ADJECTIVE": {
         "BIT_LENGTH": 6,
         "LEADS": [],
@@ -25856,4 +25856,4 @@
     "VERSION": {
         "SHA256_CONDENSED_FULL": "d7f18b3c7d02ca35c3f4041c29ab60e27fbdd14cc9342156b64ea87d9ed19164"
     }
-}
+};
