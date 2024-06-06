@@ -1,6 +1,12 @@
-import 'dart:convert';
-import 'dart:io'; 
-import 'dart:async';
+import 'package:GreatWall/themes/BIP39_french.dart';
+import 'package:GreatWall/themes/BIP39.dart'; 
+import 'package:GreatWall/themes/copy_left.dart';
+import 'package:GreatWall/themes/cute_pets.dart';
+import 'package:GreatWall/themes/farm_animals.dart'; 
+import 'package:GreatWall/themes/finances.dart';
+import 'package:GreatWall/themes/medieval_fantasy.dart';
+import 'package:GreatWall/themes/sci-fi.dart';
+import 'package:GreatWall/themes/tourism.dart';
 import 'package:tuple/tuple.dart';
 import 'package:quiver/iterables.dart';
 
@@ -43,6 +49,38 @@ class ThemeDict {
     */  
     try{ 
         default_theme=theme; 
+        switch(default_theme){ 
+            case "BIP39": {
+            inner_dict = BIP39;
+            }
+            case  "BIP39_french": {
+              inner_dict = BIP39_french;
+            }
+            case "copy_left": {
+              inner_dict = copy_left;
+            }
+            case "cute_pets": { 
+              inner_dict = cute_pets;
+            }
+            case "farm_animals": {
+              inner_dict = farm_animals;
+            }
+            case "finances":{ 
+              inner_dict = finances;
+            }
+            case "medieval_fantasy": {
+              inner_dict = medieval_fantasy;
+            }
+            case "sci-fi":{
+              inner_dict = sci_fi;
+            }
+            case "tourism":{
+              inner_dict = tourism;
+            }
+            default : {
+              print("Wrong name of theme.");
+            }
+        }
       } catch (exception){
         print(exception.toString());
       }
@@ -61,22 +99,7 @@ class ThemeDict {
       this.default_theme = theme;
       this.inner_dict = dict;
     }
-
-    Future<void> storeJsonValues() async {
-    /*Stores theme json for later use.
-    
-    None.
-
-    Returns:
-      Future<void> - Future since loadString function returns Future.
-    */  
-    ///This function should be called after initializing constructor. 
-    ///We can't progress with other stuff if we didn't load wanted theme 
-    final file = File('themes/' + default_theme +'.json');
-    final content = await file.readAsString(); 
-    inner_dict   = jsonDecode(content); 
-    }
-
+  
     ThemeDict getItem(String key) {
     /*Gets item from internal directory.
       
