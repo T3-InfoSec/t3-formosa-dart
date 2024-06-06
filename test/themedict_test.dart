@@ -9,21 +9,9 @@ final cute_pets        = Mnemonic("cute_pets");
 final sci_fi           = Mnemonic("sci-fi"); 
 
 
-void setUpAll() async {
-  //Loads theme files to Mnemonic objects.
-  TestWidgetsFlutterBinding.ensureInitialized(); 
-  await sci_fi.words_dictionary.storeJsonValues();
-  await bip39.words_dictionary.storeJsonValues();
-  await medieval_fantasy.words_dictionary.storeJsonValues();
-  await cute_pets.words_dictionary.storeJsonValues();
-}
+void main()  async { 
 
-
-void main()  async {
-    //preparing test enviroment
-    setUpAll();
-
-
+    TestWidgetsFlutterBinding.ensureInitialized(); 
     test('Check does storeJsonValues method works as expected', (){
       expect(bip39.words_dictionary.inner_dict[FILL_SEQUENCE_KEY], ['WORDS']);
       expect(bip39.words_dictionary.inner_dict[NATURAL_SEQUENCE_KEY],  ['WORDS']);
