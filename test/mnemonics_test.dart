@@ -26,10 +26,5 @@ void main()  async {
       expect(bip39.format_mnemonic(bip39.to_mnemonic([0xAA, 0xAA, 0xAA, 0xAA])), "primfetcprim"); 
       expect(bip39.format_mnemonic(bip39.to_mnemonic([0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF])), "zoo-zoo-zoo-zoo-zoo-zebr");
     }); 
- 
-    
-
-
-
   
 }
