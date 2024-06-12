@@ -154,6 +154,11 @@ class Mnemonic{
     String binary_representation;
     for (int data_ in data){
        binary_representation = data_.toRadixString(2);
+       if (binary_representation.length<8){
+        while (binary_representation.length != 8){
+          binary_representation = '0'+binary_representation;
+        }
+       }
        entropy_bits += binary_representation;
     }     
 
@@ -177,8 +182,7 @@ class Mnemonic{
     }
 
     String data_bits = entropy_bits + checksum_bits;
-
-
+ 
     List sentences = words_dictionary.get_sentences_from_bits(data_bits);
     
     String mnemonic = sentences.join(" "); 
@@ -218,5 +222,84 @@ class Mnemonic{
     return password;
     } 
   
+    String expand_password(String password){
+    /*Try to recover the mnemonic words from the password which are the first letters of each word.
+
+    [password] (String) : The password containing the first letters of each word from the mnemonic. 
+
+    Returns:
+        String - Return the complete mnemonic recovered from the password.
+                  When the word is not found just return the input.
+                  Note the whole phrase can be missed depending on the position of the missed word.
+    */
+    //TODO
+    return "";
+    }  
+
+
+    List<int> to_entropy(dynamic words){
+    /*Extract an entropy and checksum values from mnemonic in Formosa standard.
+
+    [words] (List<String> or String) : This is the mnemonic that is desired to extract entropy from. 
+
+    Returns:
+        List<int> - Returns a bytearray with the entropy and checksum values extracted from a mnemonic in a Formosa standard.
+    */ 
+    if (words is String){
+          words = words.split(" ");
+    }
+
+    int words_size = words.length;
+    var words_dict = words_dictionary;
+    int phrase_amount = words_dict.get_phrase_amount(words);
+    int phrase_size = words_dict.words_per_phrase();
+    int bits_per_checksum_bit = 33;
+    if ((words_size % phrase_size) != 0){
+        throw Exception("The number of words must be a multiple of " + phrase_size.toString() +", but it is " + words_size.toString());
+        
+    }
+    //Look up all the words in the list and construct the
+    //concatenation of the original entropy and the checksum.
+
+    //Determining strength of the password 
+    int number_phrases = (words_size / words_dict.words_per_phrase()).toInt();
+    int concat_len_bits = number_phrases * words_dict.bits_per_phrase();
+    int checksum_length_bits = (concat_len_bits / bits_per_checksum_bit).toInt().round();
+    int entropy_length_bits = concat_len_bits - checksum_length_bits; 
+    var phrase_indexes = words_dict.get_phrase_indexes(words);
+ 
+    List bits_fill_sequence = [];
+    for (int i=0; phrase_amount>i ; i++){
+      bits_fill_sequence+= words_dictionary.bits_fill_sequence();
+    }
+
+    String concat_bits  = ""; 
+    for (int i=0; phrase_indexes.length>i ; i++){ 
+      concat_bits+=(phrase_indexes[i].toRadixString(2).padLeft(bits_fill_sequence[i],'0'));
+    } 
+    List<int> entropy_ = List.filled((entropy_length_bits/8).toInt(), 0); 
+    int bit_int;
+ 
+    for (int entropy_id=0; (entropy_length_bits/8)>entropy_id; entropy_id+=1){
+        entropy_[entropy_id] = 0 ;
+         for (int i=0; 8>i ; i++){
+
+        if (concat_bits[(entropy_id*8)+i] == '1'){
+          bit_int = 1;
+        }
+        else bit_int = 0;   
+         entropy_[entropy_id]  |= (bit_int << (8 - 1 - i));  
+         }    
+    } 
+    List<int> entropy = List.filled((entropy_length_bits/8).toInt(), 0); 
+    for (int entropy_id=0; (entropy_length_bits/8)>entropy_id; entropy_id+=1){
+      entropy[entropy_id] = int.parse(entropy_[entropy_id].toString());
+    } 
+    return entropy;
+    }
+   
+  
+
+
 }
   
