@@ -1,0 +1,33 @@
+name: Formosa CI
+
+on:
+  pull_request:
+    branches:
+      - master
+      - development
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Dart
+      uses: dart-lang/setup-dart@v1
+
+    - name: Install dependencies
+      run: dart pub get
+
+    - name: Run Linter
+      run: dart analyze
+
+    - name: Format code
+      run: dart format --output=none --set-exit-if-changed . || true
+
+    - name: Run Unit Tests
+      run: dart test
+
+    - name: Debug environment
+      run: env

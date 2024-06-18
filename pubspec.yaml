@@ -1,0 +1,11 @@
+name: mnemonic
+description: Dart implementation of Formosa, for use in T3 Vault.
+version: 1.0.0
+homepage: http://t3infosecurity.com/
+
+environment:
+  sdk: ^3.4.0
+
+dev_dependencies:
+  lints: ^3.0.0
+  test: ^1.24.0
