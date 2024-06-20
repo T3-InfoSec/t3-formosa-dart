@@ -9,10 +9,8 @@ import 'package:mnemonic/themes/sci-fi.dart';
 import 'package:mnemonic/themes/tourism.dart'; 
 import 'package:quiver/iterables.dart'; 
 
-
- 
 class ThemeDict {  
-    /// Helper class which has lots of helper functions to extract theme information from
+    /// Helper class which helps to extract theme information from
     /// stored json files.
   
     String fillSeqKey           = "FILLING_ORDER";
@@ -35,13 +33,15 @@ class ThemeDict {
     }
 
     ThemeDict(String theme) {
-    ///Creates instance of ThemeDict.
-    ///Note: Inner dictionary is not loaded with theme data.
+    /// Constructor of [ThemeDict] class. 
     ///
-    ///[theme] (String)             : Specific theme which is used. 
-    /// 
-    ///Returns:
-    ///  ThemeDict - Instance of ThemeDict class with defined default theme.   
+    /// The [ThemeDict] constructor creates an object based on provieded [theme].
+    ///
+    /// - Parameters:
+    ///   - [theme]: A string which describes which theme is used.
+    ///
+    /// - Returns: A [ThemeDict] object containing which is based on specific [theme].
+ 
         defaultTheme=theme; 
         switch(defaultTheme){ 
             case "BIP39": {
@@ -75,53 +75,59 @@ class ThemeDict {
     }  
 
     ThemeDict._private(String theme, Map<String, dynamic> dict){
-    ///Creates instance of ThemeDict. This private constructor is used when we
-    ///want to create ThemeDict class with subset of inner dictionary.
+    /// Constructor of ThemeDict class.
     ///
-    ///[theme] (String)             : Specific theme which is used.
-    ///[dict]  (Map<String,dynamic) : Subset of inner dictionary.
+    /// The [_private] constructor creates a ThemeDict object using the provided
+    /// [theme] string and the [dict] map.
     ///
-    ///Returns:
-    ///  ThemeDict - Instance of ThemeDict class with subset of received dictionary.
- 
+    /// - Parameters:
+    ///   - [theme]: A string which is used to describe wanted theme.
+    ///   - [dict] : Dictionary which stores information about theme.
+    ///
+    /// - Returns: A [ThemeDict] object with inner dictionary equal to [dict] and theme
+    ///            selected to wanted [theme].  
       defaultTheme = theme;
       innerDict = dict;
     }
   
     ThemeDict getItem(String key) {
-    ///Gets item from internal directory.
+    /// Gets item from internal directory.
     ///
-    ///[Key] (String) : Key value for internal dictionary.
+    /// The [getItem] method  returns item from inner dictionary of ThemeDict class
+    ///  based on [key].
     ///
-    ///Returns:
-    ///  ThemeDict - Instance of ThemeDict class made from value which corresponds to given key.
-  
+    /// - Parameters:
+    ///   - [key]: A string used to access dictionary.
+    ///
+    /// - Returns: A [ThemeDict] class made from value which corresponds to given key  
       if (innerDict[key] != null){
         return  ThemeDict._private(defaultTheme, innerDict[key]);
       }
       return ThemeDict.EmptyDict(defaultTheme);
     }
 
-    void setItem(String item, Map<String, dynamic> value){
-    ///Sets current value of inner dictionary to specific value.
+    void setItem(String item, Map<String, dynamic> value){ 
+    /// The [setItem] method sets specific [item] of inner dictionary to [value].
     ///
-    ///[item] (String)               : Specific key for inner dictionary.
-    ///[value]  (Map<String,dynamic) : Subset of inner dictionary.
+    /// - Parameters:
+    ///   - [item]: A string used as key for inner dictionary.
+    ///   - [value]:Value to be set of inner dictionary. 
     ///
-    ///Returns:
-    ///  None. 
+    /// - Returns:  [None] 
       innerDict[item] = value;
     }
 
     List<String> fillingOrder() {
-    ///Returns list of words in which represent filing order for specific theme
-    ///from inner dictionary.  ([fillSeqKey])
+    /// Returns list of words in which represent filing order for specific theme
+    ///from inner dictionary. 
     ///
-    ///None.
+    /// The [fillingOrder] method returns list of words in which represent filing
+    ///  order for specific theme from inner dictionary.  [fillSeqKey]
+    /// 
+    /// - Parameters:
+    ///   - [None] 
     ///
-    ///Returns:
-    /// List<String> - List of words in which represent filing order for specific theme.
-   
+    /// - Returns: A words which represent filing order for specific theme. 
       List<String> temp = [];
       innerDict.forEach((key, value) {
         if (key == fillSeqKey){ 
@@ -141,12 +147,15 @@ class ThemeDict {
     }
 
     List<String> naturalOrder(){
-    ///Returns list of words in natural speech from inner dictionary. 
+    /// Returns list of words in natural speech from inner dictionary. 
     ///
-    ///None.
+    /// The [naturalOrder] method returns list of words which correspond to key
+    ///   [naturalSeqKey] from inner dictionary.
     ///
-    ///Returns:
-    ///List<String> - List of words in natural speech. 
+    /// - Parameters:
+    ///   - [None] 
+    ///
+    /// - Returns: A words in natural speech.  
         List<String> temp = [];
         innerDict.forEach((key, value) {
           if (key == naturalSeqKey){
@@ -164,13 +173,15 @@ class ThemeDict {
     }
 
     List<String> leads(){
-    ///Returns list of words which led inner dictionary.
+    /// Returns list of words which led inner dictionary.
     ///
-    ///None.
+    /// The [leads] method returns list of words which correspond to key
+    ///   [leadsKW] from inner dictionary.
     ///
-    ///Returns:
-    ///List<String> - List of words which led inner dictionary.
-      
+    /// - Parameters:
+    ///   - [None] 
+    ///
+    /// - Returns: A words which led inner dictionary. 
       List<String> temp = [];
       innerDict.forEach((key, value) {
           if (key == leadsKW){
@@ -188,13 +199,15 @@ class ThemeDict {
     }
     
     List<String> totalWords(){
-    ///Returns list of total words from inner dictionary.
+    /// Returns list of total words from inner dictionary.
     ///
-    ///None.
+    /// The [totalWords] method returns list of words which correspond to key
+    ///   [totalsKW] from inner dictionary.
+    /// 
+    /// - Parameters:
+    ///   - [None]
     ///
-    ///Returns:
-    ///List<String> - List of total words.  
-    
+    /// - Returns: All total words.  
       List<String> temp = [];
       innerDict.forEach((key, value) {
           if (key == totalsKW){
@@ -215,13 +228,15 @@ class ThemeDict {
     }
 
     List<String> image(){
-    ///Returns list of total words from inner dictionary marked with [imageKW].
+    /// Returns list of total words from inner dictionary marked with [imageKW].
     ///
-    ///None.
+    /// The [image] method returns list of words which correspond to key
+    ///   [imageKW] from inner dictionary.
     ///
-    ///Returns:
-    /// List<String> - List of total words which are marked with [imageKW]. 
-     
+    /// - Parameters:
+    ///   - [None]
+    /// 
+    /// - Returns: All words which are marked with [imageKW]. 
       List<String> temp = [];
       innerDict.forEach((key, value) {
           if (key == imageKW){
@@ -239,12 +254,15 @@ class ThemeDict {
     }
   
     ThemeDict mapping(){
-    ///Returns ThemeDict from inner dictionary marked with [mappingKW].
+    /// Returns ThemeDict from inner dictionary marked with [mappingKW].
     ///
-    ///None.
+    /// The [mapping] method returns list of words which correspond to key
+    ///   [mappingKW] from inner dictionary.
     ///
-    ///Returns:
-    ///ThemeDict - Instance of ThemeDict class with key equal to inner dictionary [mappingKW].
+    /// - Parameters:
+    ///   - [None]
+    ///
+    /// - Returns: A [ThemeDict] object with key equal to inner dictionary [mappingKW].
       
       if (getItem(mappingKW).innerDict.isNotEmpty){  
         return ThemeDict._private(defaultTheme, getItem(mappingKW).innerDict);
@@ -253,12 +271,15 @@ class ThemeDict {
     }
 
     int bitLength(){
-    ///Returns number of bits to map the word of current dictionary.
+    /// Returns number of bits to map the word of current dictionary.
     ///
-    ///None.
+    /// The [bitLength] method returns bit lenght which correspond to key 
+    /// [bitsKW] from inner dictionary.
     ///
-    ///Returns:
-    ///int - Number of bits for mapping.   
+    /// - Parameters:
+    ///   - [None]
+    ///
+    /// - Returns: Number of bits for mapping.
       if (innerDict[bitsKW] == null) {
         return 0;
       }
@@ -268,39 +289,46 @@ class ThemeDict {
     }
 
     String ledBy(){
-    ///Returns string which leds current mapping.
+    /// Returns string which leds current mapping.
     ///
-    ///None.
+    /// The [ledBy] method returns bit lenght which correspond to key 
+    /// [ledKW] from inner dictionary.
     ///
-    ///Returns:
-    /// String - String which leds current mapping.   
+    /// - Parameters:
+    ///   - [None] 
+    ///
+    /// - Returns: Word which leds current mapping 
       var temp = innerDict[ledKW];
       return temp.toString();
     }
 
     ThemeDict getLedByMapping(String ledByWord){
-    ///Returns inner dict value (mapping) for key equal to leading word.
+    /// Returns inner dictionary value (mapping) for key equal [ledByWord].
     ///
-    ///[ledByWord] (String) : Leading word for specific theme.
+    /// The [getLedByMapping] method creates a ThemeDict pattern using the provided
+    /// [ledByWord] string as key.
     ///
-    ///Returns:
-    ///  ThemeDict - Instance of ThemeDict class which is value defined by leading word. 
-  
+    /// - Parameters:
+    ///   - [ledByWord]: A string used as key to retrieve information from inner dictionary.
+    ///
+    /// - Returns: A [ThemeDict] where which is value defined by [ledByWord].  
       ThemeDict temp = getItem(ledByWord);
       String ledByTemp = temp.ledBy(); 
       return getItem(ledByTemp).getItem(ledByWord).getItem(mappingKW);
     }
 
     int bitsPerPhrase(){ 
-    ///Returns sum of bits for each phrase in default theme.
+    /// Returns sum of bits for each phrase in default theme.
     ///
-    ///None.
+    /// The [bitsPerPhrase] method sums bits for each phrase in default theme.
     ///
-    ///Returns:
-    /// int - Sum of bit lenghts for each phrase in filing order of theme.  
+    /// - Parameters:
+    ///   - [None]
+    ///
+    /// - Returns: A  sum of bit lenghts for each phrase in filing order of theme.   
     var filingWords = fillingOrder();
     int sum = 0; 
-    /// Sum bit lenght for each mapping defined by filing order.
+    // Sum bit lenght for each mapping defined by filing order.
     for (String word in filingWords){
         sum += getItem(word).bitLength();
     }
@@ -308,13 +336,15 @@ class ThemeDict {
     }
 
     List<int> bitsFillSequence(){
-    ///Returns list of bit lenghts for each phrase in default theme.
+    /// Returns 
     ///
-    ///None.
+    /// The [bitsFillSequence] method creates list of bit lenghts for each phrase in default theme.
+    /// Each phrase in default theme is retrieved using [fillSeqKey] as key for inner dictionary.
     ///
-    ///Returns:
-    /// List<int> - List of bit lenghts for each phrase in filing order of theme. 
-    
+    /// - Parameters:
+    ///   - [None]
+    ///
+    /// - Returns: A list of bit lenghts for each phrase in filing order of theme.  
     List<int> result = [];
     var filingWords = fillingOrder();
     for (String word in filingWords){
@@ -324,50 +354,57 @@ class ThemeDict {
     }
 
     int wordsPerPhrase(){
-    ///Returns lenght of phrases in this theme.
+    /// Returns lenght of phrases in this theme.
     ///
-    ///None.
+    /// The [wordsPerPhrase] method returns lenght of words which can be 
+    /// accessed by [fillSeqKey] in inner dictionary.
     ///
-    ///Returns:
-    /// int - Lenght of phrases in default theme. 
-    ///       0 - if theme is malformed
-    
+    /// - Parameters:
+    ///   - [None]
+    ///
+    /// - Returns: Lenght of phrases in default theme.
+    ///            If theme is malformed, 0 is returned.
     int wordsPerPhrase_    = fillingOrder().length;
     int wordsNaturalOrder_ = naturalOrder().length;
 
     if (wordsPerPhrase_ != wordsNaturalOrder_){
-      ///Theme is malformed.
+      //Theme is malformed.
       return 0; 
     }
     return wordsPerPhrase_; 
     }
 
     List<String> wordList(){
-    ///Returns all words used in the theme.
+    /// Returns all words used in the theme.
+    /// 
+    /// The [wordList] method returns list of words used in default theme.
     ///
-    ///None.
+    /// - Parameters:
+    ///   - [None]
     ///
-    ///Returns:
-    ///  String<List> - All words used in the theme. 
+    /// - Returns: A list of words used in the theme.  
     
     List<String> result = [];
     var filingWords_ = fillingOrder();
-    ///Iterate through all phrases in theme.
+    //Iterate through all phrases in theme.
     for (String word in filingWords_){
         result.addAll(getItem(word).totalWords());
     }
-    /// Removes duplicate words from list.
+    // Removes duplicate words from list.
     return result.toSet().toList();
     }
 
     List< (String,String)> restrictionSequence(){
-    ///Returns list of restrictions used in this theme.
+    /// Returns list of restrictions used in this theme.
     ///
-    ///None.
+    /// The [restrictionSequence] method creates a Blockies pattern using the provided
+    /// hash string and the instance's size and color properties.
     ///
-    ///Returns:
-    /// List<(String,String)> - List of restriction words in this theme in form of list of records. 
-     
+    /// - Parameters:
+    ///   - [None]
+    ///
+    /// - Returns: A restriction words in 
+    ///             this theme in form of list of records. 
     List<(String, String)> result = [];
     var filingWords_ = fillingOrder();
     for (String word in filingWords_){
@@ -380,25 +417,28 @@ class ThemeDict {
     }
 
     int naturalIndex(String syntacticWord){
-    ///Returns sentence index in the natural speech of a given syntactic word.
+    /// Returns index of syntactic word in inner dictionary.
     ///
-    ///[syntacticWord] (String) : Word given to find the index in the sentence.
+    /// The [naturalIndex] method creates sentence index in the natural 
+    ///  speech of a given [syntacticWord].
     ///
-    ///Returns:
-    ///  int - The index of the word given in the natural speech of the sentence.
-    
+    /// - Parameters:
+    ///   - [syntacticWord]: A word given to find the index in the sentence.
+    ///
+    /// - Returns: Index of the word given in the natural speech of the sentence.
     List<String> naturalWords_ = naturalOrder(); 
     return naturalWords_.indexOf(syntacticWord);
     }
 
     List<int> naturalMap(){
-    ///Returns list of indexes of the natural order in the filling order.
+    /// Returns list of indexes of the natural order in the filling order.
     ///
-    ///None.
+    /// The [naturalMap] method returns list of indexes in filling order.
     ///
-    ///Returns:
-    /// List<int>  - List of indexes of natural order in the filing order.
-    
+    /// - Parameters:
+    ///   - [None]
+    ///
+    /// - Returns: List of indexes of natural order in the filing order. 
     List<int> result = [];
     var fillingWords_ = fillingOrder();
     for (String word in fillingWords_){
@@ -408,25 +448,29 @@ class ThemeDict {
     }
 
     int fillIndex(String syntacticWord){
-    ///Returns index of syntactic word in the filling order.
+    /// Returns index of syntactic word in the filling order.
     ///
-    ///[syntacticWord] (String) : The word given to find the index in the filling order.
+    /// The [fillIndex] method creates sentence index in the natural 
+    ///  speech of a given [syntacticWord].
     ///
-    ///Returns:
-    /// int  - The index of the word given in the filling order.
-     
+    /// - Parameters:
+    ///   - [syntacticWord]: The word given to find the index in the filling order.
+    ///
+    /// - Returns: The index of the word given in the filling order. 
     List<String> fillingWords_ = fillingOrder();
     return fillingWords_.indexOf(syntacticWord);
     }
 
     List<int> fillingMap(){
-    ///Returns list of indexes of the filling order in the natural order.
+    /// Returns list of indexes of the filling order in the natural order.
     ///
-    ///None.
+    /// The [generatePattern] method creates sentence index in the natural 
+    ///  speech of a given [naturalSeqKey]. 
     ///
-    ///Returns:
-    /// List<int>  - List of indexes of filling order in the natural order.
-     
+    /// - Parameters:
+    ///   - [None]
+    ///
+    /// - Returns:  List of indexes of filling order in the natural order. 
     List<int> result = [];
     var naturalWords_ = naturalOrder();
     for (String word in naturalWords_){
@@ -436,13 +480,15 @@ class ThemeDict {
     }
 
     List<(int,int)> restrictionIndexes(){
-    ///Returns list of records of indexes to the restriction sequence of the sentence in natural speech.
+    /// Creates list of records of indexes to the restriction sequence of the sentence in natural speech.
     ///
-    ///None.
+    /// The [restrictionIndexes] method creates a list of records for restriction sequence in 
+    /// natural speech which is defined by [leadsKW].
     ///
-    ///Returns:
-    /// List<(int,int)>  - List of records containing index and word.
- 
+    /// - Parameters:
+    ///   - [None]
+    ///
+    /// - Returns: List of records containing index and word.
     List<(int,int)> result = []; 
     List<(String, String)> restrictionSeq_ = restrictionSequence();
     for ((String,String) record in restrictionSeq_){
@@ -452,13 +498,15 @@ class ThemeDict {
     }
 
     List<String> primeSyntacticLeads(){
-    ///Returns list of syntactic words which does not follow any other syntactic word.
+    /// Generates list of syntactic words which does not follow any other syntactic word.
     ///
-    ///None.
+    /// The [primeSyntacticLeads] method creates a list of syntactic words which does 
+    /// not follow any other syntactic word.
     ///
-    ///Returns:
-    /// List<String>  - List of syntactic words which do not follow any other syntactic words.
-    
+    /// - Parameters:
+    ///   - [None] 
+    /// 
+    /// - Returns: List of syntactic words which do not follow any other syntactic words. 
     List<String> result = [];
     List<String> fillingWords_ = fillingOrder();
     for (String word in fillingWords_){
@@ -470,13 +518,15 @@ class ThemeDict {
     }
     
     List<(String,String)> restrictionPairs(List<String> sentence){
-    ///Returns list of pairs of restriction from a given sentence.
+    /// Generates a list of pairs of restriction from a given sentence.
     ///
-    ///[sentence] (List<String) : The list of words from a sentence of the mnemonic.
+    /// The [restrictionPairs] method creates a list of restriction pairs from a 
+    /// give [sentence].
     ///
-    ///Returns:
-    ///  List<(String,String)>  - List of pairs of restriction from a given sentence.
- 
+    /// - Parameters:
+    ///   - [sentence]: The list of words from a sentence of the mnemonic.
+    ///
+    /// - Returns: List of pairs of restriction from a given sentence.
     List<(int,int)> indexes = restrictionIndexes();
     List<(String,String)> result = [];
     for((int,int) element in indexes){
@@ -486,17 +536,19 @@ class ThemeDict {
     }
 
     (int, int) getRelationIndexes((dynamic, dynamic) relation) {
-    ///Returns indexes from a given record of relation syntactic and mnemonic words
-    ///f any word given only leads and not led, find the indexes in the total_words list.
+    /// Returns indexes from a given record of relation syntactic and mnemonic words
+    /// any word given only leads and not led, find the indexes in the total_words list.
     ///
-    ///[relation] (Record) : The relation given to find the index from the lists
-    ///                      It can be whether a record of syntactic leads and the mnemonic leads
-    ///                       or a record of records of syntactic leads and led and mnemonic leads and led
-    ///                      e.g. ("VERB", word_verb) or (("VERB", "SUBJECT"), (word_verb, word_subject))
-    /// 
-    ///Returns:
-    ///   (int,int)  - Record with the indexes found in the restriction relation.
-  
+    /// The [getRelationIndexes] method finds idexes from a given [relation] of relation syntactic and mnemonic
+    /// words any word given only leads and not led.
+    ///
+    /// - Parameters:
+    ///   - [relation]: The relation given to find the index from the lists
+    ///                 It can be whether a record of syntactic leads and the mnemonic leads
+    ///                 or a record of records of syntactic leads and led and mnemonic leads and led
+    ///                 e.g. ("VERB", word_verb) or (("VERB", "SUBJECT"), (word_verb, word_subject))
+    ///
+    /// - Returns: Record with the indexes found in the restriction relation.
     var syntacticRelation = relation.$1;
     var mnemonicRelation  = relation.$2;
 
@@ -524,15 +576,20 @@ class ThemeDict {
   }
  
     List<int> getNaturalIndexes(dynamic sentence) {
-    ///Return the indexes of a sentence from the lists ordered as natural speech of this theme
-    ///The sentence can be given as a list or a string and must be complete
-    ///otherwise raises ArgumentError exception.
+    /// Return the indexes of a sentence from the lists ordered as natural speech of this theme.
+    /// The sentence can be given as a list or a string and must be complete
+    /// otherwise raises ArgumentError exception.
     ///
-    ///[sentence] (Record or String) :  The words to be searched, must have complete sentences
+    /// The [getNaturalIndexes] method generates indexes of a sentence from the lists ordered as 
+    /// natural speech of this theme.
     ///
-    ///Returns:
-    ///   List<int>  - The list of indexes of the words in this theme lists and ordered as the mnemonic given.
-   
+    /// - Parameters:
+    ///   - [sentence]: The words to be searched.
+    ///
+    /// - Returns: The list of indexes of the words in this theme lists and ordered as the mnemonic given.
+    /// 
+    /// - Throws: 
+    ///   - [ArgumentError] if number of words in sentence is not correct.
       if (sentence is String){
         sentence = sentence.toString().split(" ");
       }
@@ -572,21 +629,26 @@ class ThemeDict {
     }
 
     List<int> getFillingIndexes(dynamic sentence){
-    ///Return the indexes of a sentence from the lists ordered as the filling order of this theme
-    ///The sentence can be given as a list or a string and must be a complete sentence
-    ///otherwise raises ValueError exception
+    /// Return the indexes of a sentence from the lists ordered as the filling order of this theme
+    /// The sentence can be given as a list or a string and must be a complete sentence
+    /// otherwise raises ValueError exception.
     ///
-    ///[sentence] (Record or String) :  The words to be searched, must have complete sentences
+    /// The [getFillingIndexes] method creates indexes of a sentence from the lists ordered 
+    ///  as the filling order of this theme.
     ///
-    ///Returns:
-    ///  List<int>  - The list of indexes of the words in this theme lists and ordered as the filling order.
-    
+    /// - Parameters:
+    ///   - [sentence]: The words to be searched.
+    ///
+    /// - Returns: The list of indexes of the words in this theme lists and ordered as the filling order.
+    /// 
+    /// - Throws:
+    ///   - [ArgumentError] if number of words in sentence is not enough.
     if (sentence is String){
         sentence = sentence.toString().split(" ");
       }
     if (sentence.length != wordsPerPhrase()) {
-      ///The number of words in sentence must be $wordsPerPhrase(), but it is ${sentence.length}'
-      return [];
+      var msg =  'The number of words in sentence must be $wordsPerPhrase(), but it is ${sentence.length}';
+      throw ArgumentError(msg);
     }
 
     List<int> result = [];
@@ -600,19 +662,21 @@ class ThemeDict {
     }
 
     int getPhraseAmount(dynamic mnemonic){
-    ///Returns how many phrases are in the given mnemonic.
+    /// Generates how many phrases are in the given mnemonic.
     ///
-    ///[sentence] (List<String> or String) :  The mnemonic to get the amount of phrases, it can be a string or a list of words.
+    /// The [getPhraseAmount] method caculates how many phrases are in [mnemonic].
     ///
-    ///Returns:
-    ///  int - Returns the amount of phrases of the given mnemonic.
+    /// - Parameters:
+    ///   - [mnemonic]: The mnemonic to get the amount of phrases, it can be a one or more words.
+    ///
+    /// - Returns: Returns the amount of phrases of the given mnemonic. 
     
-    /// split string into list of words
+    // split string into list of words
     if (mnemonic is String){
         mnemonic = mnemonic.toString().split("");
     } 
 
-    ///remove empty elements from spliting
+    //remove empty elements from spliting
     for (int i = mnemonic.length - 1; i >= 0; i--) { 
       if (mnemonic[i] == '') { 
         mnemonic.removeAt(i);
@@ -629,14 +693,15 @@ class ThemeDict {
     }
 
     List<List<String>> getSentences(dynamic mnemonic){
-    ///Splits to list the sentences from a given mnemonic
+    /// Splits to list the sentences from a given mnemonic.
     ///
-    ///[sentence] (List<String> or String) :  The mnemonic to get the amount of phrases, it can be a string or a list of words.
+    /// The [getSentences] method creates list of sentences of given [mnemonic].
     ///
-    ///Returns:
-    /// List<List<String>> - Return a list of sentences with the lists of words from the mnemonic.
+    /// - Parameters:
+    ///   - [mnemonic]: The mnemonic to get the amount of phrases, it can be a one or more words.
+    ///
+    /// - Returns: Return a list of sentences with the lists of words from the mnemonic. 
     
-
     //normalize mnemonic
     if (mnemonic is String){
       mnemonic = mnemonic.toString().split(" ");
@@ -659,14 +724,14 @@ class ThemeDict {
     }
 
     List<int> getPhraseIndexes(dynamic mnemonic){
-    ///Get the indexes of a given mnemonic from each sentence in it
-    ///The mnemonic can be given as a list or a string and must have complete sentences
-    ///otherwise raises ArgumentError exception.
+    /// Get the indexes of a given mnemonic from each sentence in it.
     ///
-    ///[mnemonic] (List<String> or String) :  The words to be searched, must have complete sentences.
+    /// The [getPhraseIndexes] method creates indexes of [mnemonic] from each sentence in it.
     ///
-    ///Returns:
-    ///   List<int> - Returns list of indexes of the words in this theme lists and ordered as the filling order
+    /// - Parameters:
+    ///   - [mnemonic]: The mnemonic to get the amount of phrases, it can be a one or more words.
+    ///
+    /// - Returns: Returns list of indexes of the words in this theme lists and ordered as the filling order
  
     ///normalize mnemonic
     if (mnemonic is String){
@@ -690,29 +755,44 @@ class ThemeDict {
     }
 
     ThemeDict getLeadMapping(String syntacticKey){
-    ///Returns ThemeDict class which is led by specific syntactic word.
+    /// Generates ThemeDict class which is led by specific syntactic word.
     ///
-    ///[syntacticKey] (String) :  Syntactic word to be led.
+    /// The [getLeadMapping] method creates instance of [ThemeDict] class
+    /// with inner dictionary led by syntactic word.
     ///
-    ///Returns:
-    ///  ThemeDict - Returns instance of ThemeDict class with inner dictionary led by syntactic word.
-    
+    /// - Parameters:
+    ///   - [syntacticKey]: Syntactic word to be led.
+    ///
+    /// - Returns: A [ThemeDict]  object with inner dictionary led by syntactic word.    
     return getItem(getItem(syntacticKey).ledBy()).getItem(syntacticKey).mapping();
     }
 
     int getLedByIndex(String syntacticKey){
-    ///Get the natural index of the leading word.
+    /// Get the natural index of the leading word.
     ///
-    ///[syntacticKey] (String) :  The leading word to get the natural index from.
+    /// The [getLedByIndex] method gets natural index of the [syntacticKey].
     ///
-    ///Returns:
-    ///    int - Returns natural index of the leading word.
-       
+    /// - Parameters:
+    ///   - [syntacticKey]: The leading word to get the natural index from.
+    ///
+    /// - Returns: Returns natural index of the leading word. 
     return naturalIndex(getItem(syntacticKey).ledBy());
     }
 
 
     List getLeadList(String syntacticKey, List sentence){
+    /// Generates a pattern based on the given hash string.
+    ///
+    /// The [generatePattern] method creates a Blockies pattern using the provided
+    /// hash string and the instance's size and color properties.
+    ///
+    /// - Parameters:
+    ///   - [hash]: A string used as the seed to generate the pattern.
+    ///
+    /// - Returns: A [Blockies](https://pub.dev/packages/blockies) object containing
+    ///   the generated pattern with the specified seed, size, color, background color,
+    ///   and spot color. 
+
     ///Get the list of words led by the given syntactic word.
     ///
     ///[syntacticKey] (String)       : The leading word to get the natural index from.
@@ -735,14 +815,16 @@ class ThemeDict {
     }
 
     List<String> assembleSentence(String dataBits){
-    ///Build sentence using bits given following the dictionary filling order.
+    /// Build sentence using bits given following the dictionary filling order.
     ///
-    ///[dataBits] (String) :  The information as bits from the entropy and checksum.
-    ///                         Each step from it represents an index to the list of led words.
-    /// 
-    ///Returns:
-    ///    List<String> - Return resulting words ordered of sentence in natural language.
-  
+    /// The [assembleSentence] method creates a sentence from [dataBits] following the
+    /// dictionary filling order.
+    ///
+    /// - Parameters:
+    ///   - [dataBits]: The information as bits from the entropy and checksum.
+    ///                 Each step from it represents an index to the list of led words.
+    ///
+    /// - Returns: Return resulting words ordered of sentence in natural language.
     int bitIndex = 0;
     List<String> currentSentence = List.empty(growable: true);
 
@@ -754,7 +836,7 @@ class ThemeDict {
     }
     for (var syntacticKey in fillingOrderList){
         int bitLength = getItem(syntacticKey).bitLength(); 
-        ///Integer from substring of zeroes and ones representing index of current word within its list
+        //Integer from substring of zeroes and ones representing index of current word within its list
         int wordIndex = int.parse(dataBits.substring(bitIndex, bitIndex + bitLength), radix: 2);
   
         bitIndex += bitLength;
@@ -768,13 +850,15 @@ class ThemeDict {
     }
 
     List getSentencesFromBits(String dataBits){
-    ///Get the mnemonic sentences in the natural speech order from given string of bits.
+    /// Get the mnemonic sentences in the natural speech order from given string of bits.
     ///
-    ///[dataBits] (String) :  The bits of the entropy and checksum to get the sentences from
+    /// The [getSentencesFromBits] method creates mnemonic sentences in the natural speech 
+    /// order from [dataBits].
     ///
-    ///Returns:
-    ///List<String> - Return a list of words forming the sentences of the mnemonic.
-      
+    /// - Parameters:
+    ///   - [dataBits]: The bits of the entropy and checksum to get the sentences from.
+    ///
+    /// - Returns: Return a list of words forming the sentences of the mnemonic.
     String data;
     int bitsPerPhrase_ = bitsPerPhrase();
     num phrasesAmount = dataBits.length / bitsPerPhrase_;
