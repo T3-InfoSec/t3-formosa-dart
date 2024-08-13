@@ -1,3 +1,3 @@
-## 1.0.0
+## 0.1.0-dev
 
-- Initial version. (20/06/2024)
+- Initial version.

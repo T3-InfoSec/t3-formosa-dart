@@ -21,7 +21,7 @@ This is an improvement on the BIP-0039 method — which provides sequences of se
 To start using Mnemonic, add it to your `pubspec.yaml`:
 ```yaml
 dependencies:
-    mnemonic: ^1.0.0
+    mnemonic: ^0.1.0-dev
 ```
 Then, run `dart pub get` to install the package.
 
