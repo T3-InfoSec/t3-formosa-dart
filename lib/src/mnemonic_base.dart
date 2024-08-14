@@ -1,9 +1,11 @@
-import "package:unorm_dart/unorm_dart.dart" as unorm;
-import 'package:binary/binary.dart';
-import 'dart:math';
 import 'dart:convert';
+import 'dart:math';
+
+import 'package:binary/binary.dart';
 import 'package:crypto/crypto.dart';
-import 'package:mnemonic/src/themedict_base.dart';
+import "package:unorm_dart/unorm_dart.dart" as unorm;
+
+import 'themedict_base.dart';
 
 List<String> supportedThemes = [
   "BIP39",
@@ -27,22 +29,6 @@ class Mnemonic {
   Mnemonic(String theme) {
     baseTheme = theme;
     wordsDictionary = ThemeDict(theme);
-  }
-
-  /// The [isBip39Theme] checks is selected theme equal to BIP39.
-  /// Returns 'true' if default theme is BIP39, else returns 'false'.
-  bool isBip39Theme() {
-    return baseTheme == "BIP39";
-  }
-
-  /// The [findThemes] method returns list of all supported themes.
-  List<String> findThemes() {
-    return supportedThemes;
-  }
-
-  /// A [normalizeString] method normalizes any given [txt] to normal from NFKD of Unicode.
-  String normalizeString(String txt) {
-    return unorm.nfkd(txt);
   }
 
   /// The [detectTheme] method returns in which themes list of words defined with
@@ -69,6 +55,45 @@ class Mnemonic {
     return foundThemes[0];
   }
 
+  /// The [expandPassword] method returns mnemonic words from [password].
+  String expandPassword(String password) {
+    return "";
+  }
+
+  /// The [findThemes] method returns list of all supported themes.
+  List<String> findThemes() {
+    return supportedThemes;
+  }
+
+  /// The [formatMnemonic] method returns formated [mnemonic] in unique way.
+  String formatMnemonic(dynamic mnemonic) {
+    if (mnemonic is String) {
+      mnemonic = mnemonic.split(" ");
+    }
+
+    int n;
+    if (isBip39Theme()) {
+      n = 4;
+    } else {
+      n = 2;
+    }
+
+    String password = "";
+    String word;
+    //Concatenate the first n letters of each word in a single string
+    //If the word in BIP39 has 3 letters finish with "-"
+    for (String word_ in mnemonic) {
+      word = word_;
+      if (n > word.length) {
+        word += "-";
+      }
+      for (int i = 0; n > i; i++) {
+        password += word[i];
+      }
+    }
+    return password;
+  }
+
   /// The [generate] method returns pattern which
   /// complication is measured by [strength] parameter.
   String generate(int strength) {
@@ -78,6 +103,77 @@ class Mnemonic {
     var rand = Random();
     double strength_ = strength / 8;
     return toMnemonic(rand.nextInt(strength_.toInt()));
+  }
+
+  /// The [isBip39Theme] checks is selected theme equal to BIP39.
+  /// Returns 'true' if default theme is BIP39, else returns 'false'.
+  bool isBip39Theme() {
+    return baseTheme == "BIP39";
+  }
+
+  /// A [normalizeString] method normalizes any given [txt] to normal from NFKD of Unicode.
+  String normalizeString(String txt) {
+    return unorm.nfkd(txt);
+  }
+
+  /// The [toEntropy] method returns a entropy using provided one or set of [words].
+  List<int> toEntropy(dynamic words) {
+    if (words is String) {
+      words = words.split(" ");
+    }
+
+    int wordsSize = words.length;
+    var wordsDict = wordsDictionary;
+    int phraseAmount = wordsDict.getPhraseAmount(words);
+    int phraseSize = wordsDict.wordsPerPhrase();
+    int bitsPerChecksumBit = 33;
+    if ((wordsSize % phraseSize) != 0) {
+      // The number of [words] doesn't have good multiple.
+      return [0];
+    }
+    //Look up all the words in the list and construct the
+    //concatenation of the original entropy and the checksum.
+
+    //Determining strength of the password
+    int numberPhrases = wordsSize ~/ wordsDict.wordsPerPhrase();
+    int concatLenBits = numberPhrases * wordsDict.bitsPerPhrase();
+    int checksumLengthBits = concatLenBits ~/ bitsPerChecksumBit.round();
+    int entropyLengthBits = concatLenBits - checksumLengthBits;
+    var phraseIndexes = wordsDict.getPhraseIndexes(words);
+
+    List bitsFillSequence = [];
+    for (int i = 0; phraseAmount > i; i++) {
+      bitsFillSequence += wordsDictionary.bitsFillSequence();
+    }
+
+    String concatBits = "";
+    for (int i = 0; phraseIndexes.length > i; i++) {
+      concatBits +=
+          (phraseIndexes[i].toRadixString(2).padLeft(bitsFillSequence[i], '0'));
+    }
+    List<int> entropy_ = List.filled(entropyLengthBits ~/ 8, 0);
+    int bitInt;
+
+    for (int entropyId = 0;
+        (entropyLengthBits / 8) > entropyId;
+        entropyId += 1) {
+      entropy_[entropyId] = 0;
+      for (int i = 0; 8 > i; i++) {
+        if (concatBits[(entropyId * 8) + i] == '1') {
+          bitInt = 1;
+        } else {
+          bitInt = 0;
+        }
+        entropy_[entropyId] |= (bitInt << (8 - 1 - i));
+      }
+    }
+    List<int> entropy = List.filled(entropyLengthBits ~/ 8, 0);
+    for (int entropyId = 0;
+        (entropyLengthBits / 8) > entropyId;
+        entropyId += 1) {
+      entropy[entropyId] = int.parse(entropy_[entropyId].toString());
+    }
+    return entropy;
   }
 
   /// The [toMnemonic] method returns mnemonic in Formosa standard from given entropy [data].
@@ -143,99 +239,5 @@ class Mnemonic {
 
     String mnemonic = sentences.join(" ");
     return mnemonic;
-  }
-
-  /// The [formatMnemonic] method returns formated [mnemonic] in unique way.
-  String formatMnemonic(dynamic mnemonic) {
-    if (mnemonic is String) {
-      mnemonic = mnemonic.split(" ");
-    }
-
-    int n;
-    if (isBip39Theme()) {
-      n = 4;
-    } else {
-      n = 2;
-    }
-
-    String password = "";
-    String word;
-    //Concatenate the first n letters of each word in a single string
-    //If the word in BIP39 has 3 letters finish with "-"
-    for (String word_ in mnemonic) {
-      word = word_;
-      if (n > word.length) {
-        word += "-";
-      }
-      for (int i = 0; n > i; i++) {
-        password += word[i];
-      }
-    }
-    return password;
-  }
-
-  /// The [expandPassword] method returns mnemonic words from [password].
-  String expandPassword(String password) {
-    return "";
-  }
-
-  /// The [toEntropy] method returns a entropy using provided one or set of [words].
-  List<int> toEntropy(dynamic words) {
-    if (words is String) {
-      words = words.split(" ");
-    }
-
-    int wordsSize = words.length;
-    var wordsDict = wordsDictionary;
-    int phraseAmount = wordsDict.getPhraseAmount(words);
-    int phraseSize = wordsDict.wordsPerPhrase();
-    int bitsPerChecksumBit = 33;
-    if ((wordsSize % phraseSize) != 0) {
-      // The number of [words] doesn't have good multiple.
-      return [0];
-    }
-    //Look up all the words in the list and construct the
-    //concatenation of the original entropy and the checksum.
-
-    //Determining strength of the password
-    int numberPhrases = wordsSize ~/ wordsDict.wordsPerPhrase();
-    int concatLenBits = numberPhrases * wordsDict.bitsPerPhrase();
-    int checksumLengthBits = concatLenBits ~/ bitsPerChecksumBit.round();
-    int entropyLengthBits = concatLenBits - checksumLengthBits;
-    var phraseIndexes = wordsDict.getPhraseIndexes(words);
-
-    List bitsFillSequence = [];
-    for (int i = 0; phraseAmount > i; i++) {
-      bitsFillSequence += wordsDictionary.bitsFillSequence();
-    }
-
-    String concatBits = "";
-    for (int i = 0; phraseIndexes.length > i; i++) {
-      concatBits +=
-          (phraseIndexes[i].toRadixString(2).padLeft(bitsFillSequence[i], '0'));
-    }
-    List<int> entropy_ = List.filled(entropyLengthBits ~/ 8, 0);
-    int bitInt;
-
-    for (int entropyId = 0;
-        (entropyLengthBits / 8) > entropyId;
-        entropyId += 1) {
-      entropy_[entropyId] = 0;
-      for (int i = 0; 8 > i; i++) {
-        if (concatBits[(entropyId * 8) + i] == '1') {
-          bitInt = 1;
-        } else {
-          bitInt = 0;
-        }
-        entropy_[entropyId] |= (bitInt << (8 - 1 - i));
-      }
-    }
-    List<int> entropy = List.filled(entropyLengthBits ~/ 8, 0);
-    for (int entropyId = 0;
-        (entropyLengthBits / 8) > entropyId;
-        entropyId += 1) {
-      entropy[entropyId] = int.parse(entropy_[entropyId].toString());
-    }
-    return entropy;
   }
 }
