@@ -1,12 +1,12 @@
-import 'package:mnemonic/themes/BIP39_french.dart';
-import 'package:mnemonic/themes/BIP39.dart';
-import 'package:mnemonic/themes/copy_left.dart';
-import 'package:mnemonic/themes/cute_pets.dart';
-import 'package:mnemonic/themes/farm_animals.dart';
-import 'package:mnemonic/themes/finances.dart';
-import 'package:mnemonic/themes/medieval_fantasy.dart';
-import 'package:mnemonic/themes/sci-fi.dart';
-import 'package:mnemonic/themes/tourism.dart';
+import 'themes/BIP39_french.dart';
+import 'themes/BIP39.dart';
+import 'themes/copy_left.dart';
+import 'themes/cute_pets.dart';
+import 'themes/farm_animals.dart';
+import 'themes/finances.dart';
+import 'themes/medieval_fantasy.dart';
+import 'themes/sci-fi.dart';
+import 'themes/tourism.dart';
 import 'package:quiver/iterables.dart';
 
 class ThemeDict {
