@@ -6,7 +6,7 @@ Dart implementation of Formosa, for use in T3 Vault.
 
 The password generation process consists of mapping input into meaningful mnemonic sentences, that are, then, condensed into the password.
 
-This is an improvement on the BIP-0039 method — which provides sequences of semantically and syntactically disconnected words as passphrases — because it uses meaningful phrases with a certain theme.
+This is an improvement on the BIP-0039 method -- which provides sequences of semantically and syntactically disconnected words as passphrases -- because it uses meaningful phrases with a certain theme.
 
 ## Features
 
