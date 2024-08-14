@@ -48,10 +48,11 @@ dart test
 Example code on how to use Formosa to generate mnemonic hash sentences.
 
 ```dart
+import 'package:collection/collection.dart';
 import 'package:knowledge/mnemonics.dart';
 
 void main() {
-  // Create a Hashviz instance
+  // Create a Mnemonic instance
   Mnemonic mnemonic = Mnemonic("BIP39");
   Function eq = const ListEquality().equals;
 
@@ -65,9 +66,9 @@ void main() {
 
   //Check did process went fine.
   if (eq(random_entropy, entropy_from_mnemonic)){
-    print("OK");
+    print("Equal!");
   } else {
-    print("NOK");
+    print("Not Equal!");
   }
 }
 ```
