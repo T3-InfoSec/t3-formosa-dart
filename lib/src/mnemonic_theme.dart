@@ -1,6 +1,9 @@
 import 'dart:collection';
 
-
+/// Theme implementation compatible with mnemonic requirements.
+///
+/// Mnemonic theme implementation which wraps the theme information, from
+/// stored theme files, into one that is compatible for [Mnemonic] class.
 class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
   static String fillSequenceKey = "FILLING_ORDER";
 
@@ -13,8 +16,14 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
   static String bitsKeyword = "BIT_LENGTH";
   final Map<K, dynamic> _internalMap;
 
+  /// Create and initialize a [MnemonicTheme] instance.
+  ///
+  /// The [Theme] is a string that specifies the theme name, by default it is
+  /// "bip39" theme. Returns [MnemonicTheme] instance based on the provided
+  /// [theme].
   MnemonicTheme({required Map<K, V> theme}) : _internalMap = theme;
 
+  /// Returns a list of words in restriction sequence to form a sentence.
   List<String> get fillingOrder {
     List<String> fillingOrderList = [];
 
@@ -25,6 +34,8 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return fillingOrderList;
   }
 
+  /// Returns list of words which correspond to key [imageKeyword]
+  /// from inner dictionary.
   List get image {
     List image;
 
@@ -37,9 +48,20 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return image;
   }
 
+  /// The keys of this [MnemonicTheme].
+  ///
+  /// The returned iterable has efficient length and contains operations,
+  /// based on [length] and [containsKey] of the [MnemonicTheme].
+  ///
+  /// The order of iteration is defined by the individual Map implementation,
+  /// but must be consistent between changes to the [MnemonicTheme].
+  ///
+  /// Modifying the map while iterating the keys may break the iteration.
   @override
   Iterable<K> get keys => _internalMap.keys;
 
+  /// Returns list of words which correspond to key [leadsKeyword] from
+  /// the current theme type.
   List<String> get leads {
     List<String> ledList;
 
@@ -52,11 +74,14 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return ledList;
   }
 
+  /// Returns word that leads the current theme type.
   String get ledBy {
     var ledBy_ = _internalMap[ledKeyword] ? _internalMap[ledKeyword] : '';
     return ledBy_.toString();
   }
 
+  /// Returns list of words which correspond to key [mappingKeyword]
+  /// from the current theme type.
   MnemonicTheme get mapping {
     MnemonicTheme mapping;
 
@@ -69,6 +94,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return mapping;
   }
 
+  /// Returns list of indexes in filling order.
   List<int> get naturalMap {
     List<int> result = [];
     var fillingWords_ = fillingOrder;
@@ -78,6 +104,8 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return result;
   }
 
+  /// Returns list of words which correspond to key [naturalSequenceKey]
+  /// from the current theme type.
   List<String> get naturalOrder {
     List<String> naturalOrder_;
 
@@ -90,6 +118,8 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return naturalOrder_;
   }
 
+  /// Returns the [value] of the given [key], or [MnemonicTheme] if [key] is
+  /// not in the [MnemonicTheme] or it is a [Map].
   @override
   dynamic operator [](dynamic key) {
     if (_internalMap[key] == null) {
@@ -101,6 +131,13 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     }
   }
 
+  /// Associate the [key] with the given [value].
+  ///
+  /// If the [key] was already in the [MnemonicTheme], its associated [value]
+  /// is changed. Otherwise, the value/key pair is added to [MnemonicTheme].
+  ///
+  /// If the [value] is of type [Map] type, if is converted to [MnemonicTheme]
+  /// type before it is associated to the [key].
   @override
   void operator []=(K key, dynamic value) {
     if (value is Map<K, dynamic>) {
@@ -110,6 +147,9 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     }
   }
 
+  /// Building words using [dataBits], following the filling order of the
+  /// theme data. Returns the resulting words ordered as sentence in natural
+  /// language.
   List<String> assembleSentence(String dataBits) {
     int bitIndex = 0;
     List<String> fillingOrderList = fillingOrder;
@@ -196,6 +236,9 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return result;
   }
 
+  /// Returns the indexes of a sentence from the lists ordered as the filling
+  /// order of this theme type. The sentence can be given as a list or a
+  /// string. Throws [ArgumentError] if sentence is not complete.
   List<int> getFillingIndexes(dynamic sentence) {
     if (sentence is String) sentence = sentence.split(' ');
 
@@ -321,6 +364,17 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return indexes;
   }
 
+  /// Get the indexes from a given [relation].
+  ///
+  /// [relation] is the given relation to find the index from the lists.
+  /// It can be whether a [Record] of (syntactic leads and the mnemonic leads
+  /// or a [Record] of (tuples of syntactic leads and led and mnemonic leads
+  /// and led). For example, ("VERB", word_verb) or
+  /// (("VERB", "SUBJECT"), (word_verb, word_subject)).
+  ///
+  /// Returns the indexes from a given [relation]. If any given words only
+  /// leads and not led, finds the indexes in the [MnemonicTheme.totalWords()]
+  /// list.
   (int, int) getRelationIndexes((dynamic, dynamic) relation) {
     var syntacticRelation = relation.$1;
     var mnemonicRelation = relation.$2;
@@ -406,6 +460,10 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return result;
   }
 
+  /// Removes [key] and its associated value, if present, from the [MnemonicTheme].
+  ///
+  /// Returns the value associated with key before it was removed.
+  /// Returns null if key was not in the [MnemonicTheme].
   @override
   V remove(Object? key) {
     return _internalMap.remove(key);
