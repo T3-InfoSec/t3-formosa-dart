@@ -1,4 +1,4 @@
-const Map<String, dynamic> farm_animals = {
+const Map<String, dynamic> farmAnimals = {
   "ADJECTIVE": {
     "BIT_LENGTH": 6,
     "LEADS": [],
