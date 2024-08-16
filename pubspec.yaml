@@ -1,6 +1,7 @@
 name: t3_formosa
 description: Improvement upon bip39 to provide a semantically connected words.
 version: 0.1.0-dev
+publish_to: none
 
 environment:
   sdk: ^3.3.4
