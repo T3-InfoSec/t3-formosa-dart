@@ -1,4 +1,4 @@
-const Map<String, dynamic> medievalFantasy = {
+const Map<String, dynamic> medievalFantasyData = {
   "ADJECTIVE": {
     "BIT_LENGTH": 5,
     "LEADS": [],

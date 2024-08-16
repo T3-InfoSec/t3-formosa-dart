@@ -3,89 +3,89 @@ import 'dart:math';
 
 import 'package:binary/binary.dart';
 import 'package:crypto/crypto.dart';
-import "package:unorm_dart/unorm_dart.dart" as unorm;
+import 'package:unorm_dart/unorm_dart.dart' as unorm;
 
-import 'themedict_base.dart';
-
-List<String> supportedThemes = [
-  "BIP39",
-  "BIP39_french",
-  "copy_left",
-  "cute_pets",
-  "farm_animals",
-  "finances",
-  "medieval_fantasy",
-  "sci-fi",
-  "tourism"
-];
+import 'mnemonic_theme.dart';
+import 'themes/themes.dart';
 
 /// Class provides abstraction for mnemonic which is created based on theme dictionary.
 class Mnemonic {
-  ThemeDict wordsDictionary = ThemeDict.EmptyDict("");
-  String baseTheme = "";
+  static Theme defaultTheme = Theme.bip39;
+
+  final String _mnemonicThemeName;
+  final MnemonicTheme _mnemonicThemeData;
 
   ///Constructor for the [Mnemonic] class returns instance of [Mnemonic] object with inner
   ///dictionary populated with specific [theme].
-  Mnemonic(String theme) {
-    baseTheme = theme;
-    wordsDictionary = ThemeDict(theme);
-  }
+  Mnemonic({required Theme theme})
+      : _mnemonicThemeName = theme.label,
+        _mnemonicThemeData = MnemonicTheme(themeData: theme.themeData);
+
+  MnemonicTheme get mnemonicThemeData => _mnemonicThemeData;
+
+  String get mnemonicThemeName => _mnemonicThemeName;
 
   /// The [detectTheme] method returns in which themes list of words defined with
-  /// [code] can be found. If theme is ambigous or there is multiple themes found
+  /// [code] can be found. If theme is ambiguous or there is multiple themes found
   ///  info message is returned.
   String detectTheme(List code) {
     var possibleThemes = findThemes();
     List foundThemes = [];
-    ThemeDict temp;
+    MnemonicTheme temp;
     for (String word in code) {
-      for (String theme in possibleThemes) {
-        temp = ThemeDict(theme);
+      for (Theme theme in possibleThemes) {
+        temp = MnemonicTheme(themeData: theme.themeData);
         if (temp.wordList().contains(word)) {
           foundThemes.add(theme);
         }
       }
     }
     if (foundThemes.length > 1) {
-      return "Theme is ambiguous.";
+      return 'Theme is ambiguous.';
     }
     if (foundThemes.isEmpty) {
       return "Didn't found appropriate theme.";
     }
-    return foundThemes[0];
+    return foundThemes[0].label;
   }
 
-  /// The [expandPassword] method returns mnemonic words from [password].
+  // TODO: Complete the implementation.
+  String expand(dynamic mnemonic) {
+    return '';
+  }
+
+  // TODO: Complete the implementation.
   String expandPassword(String password) {
-    return "";
+    int n = (isBip39Theme()) ? 4 : 2;
+
+    if (password.length % n != 0) {
+      return password;
+    }
+
+    return '';
   }
 
-  /// The [findThemes] method returns list of all supported themes.
-  List<String> findThemes() {
-    return supportedThemes;
+  // TODO: Complete the implementation.
+  String expandWord(dynamic mnemonic) {
+    return '';
   }
 
-  /// The [formatMnemonic] method returns formated [mnemonic] in unique way.
+  /// The [formatMnemonic] method returns formatted [mnemonic] in unique way.
   String formatMnemonic(dynamic mnemonic) {
     if (mnemonic is String) {
-      mnemonic = mnemonic.split(" ");
+      mnemonic = mnemonic.split(' ');
     }
 
-    int n;
-    if (isBip39Theme()) {
-      n = 4;
-    } else {
-      n = 2;
-    }
+    int n = (isBip39Theme()) ? 4 : 2;
 
-    String password = "";
+    String password = '';
     String word;
     //Concatenate the first n letters of each word in a single string
     //If the word in BIP39 has 3 letters finish with "-"
     for (String word_ in mnemonic) {
       word = word_;
       if (n > word.length) {
-        word += "-";
+        word += '-';
       }
       for (int i = 0; n > i; i++) {
         password += word[i];
@@ -98,7 +98,7 @@ class Mnemonic {
   /// complication is measured by [strength] parameter.
   String generate(int strength) {
     if ((strength % 32 != 0) && (strength > 256)) {
-      return ("Strength should be below 256 and a multiple of 32, but it is$strength");
+      return ('Strength should be below 256 and a multiple of 32, but it is$strength');
     }
     var rand = Random();
     double strength_ = strength / 8;
@@ -108,22 +108,17 @@ class Mnemonic {
   /// The [isBip39Theme] checks is selected theme equal to BIP39.
   /// Returns 'true' if default theme is BIP39, else returns 'false'.
   bool isBip39Theme() {
-    return baseTheme == "BIP39";
-  }
-
-  /// A [normalizeString] method normalizes any given [txt] to normal from NFKD of Unicode.
-  String normalizeString(String txt) {
-    return unorm.nfkd(txt);
+    return mnemonicThemeName == 'bip39';
   }
 
   /// The [toEntropy] method returns a entropy using provided one or set of [words].
   List<int> toEntropy(dynamic words) {
     if (words is String) {
-      words = words.split(" ");
+      words = words.split(' ');
     }
 
     int wordsSize = words.length;
-    var wordsDict = wordsDictionary;
+    var wordsDict = _mnemonicThemeData;
     int phraseAmount = wordsDict.getPhraseAmount(words);
     int phraseSize = wordsDict.wordsPerPhrase();
     int bitsPerChecksumBit = 33;
@@ -136,19 +131,19 @@ class Mnemonic {
 
     //Determining strength of the password
     int numberPhrases = wordsSize ~/ wordsDict.wordsPerPhrase();
-    int concatLenBits = numberPhrases * wordsDict.bitsPerPhrase();
-    int checksumLengthBits = concatLenBits ~/ bitsPerChecksumBit.round();
-    int entropyLengthBits = concatLenBits - checksumLengthBits;
+    int concatenationLenBits = numberPhrases * wordsDict.bitsPerPhrase();
+    int checksumLengthBits = concatenationLenBits ~/ bitsPerChecksumBit.round();
+    int entropyLengthBits = concatenationLenBits - checksumLengthBits;
     var phraseIndexes = wordsDict.getPhraseIndexes(words);
 
     List bitsFillSequence = [];
     for (int i = 0; phraseAmount > i; i++) {
-      bitsFillSequence += wordsDictionary.bitsFillSequence();
+      bitsFillSequence += _mnemonicThemeData.bitsFillSequence();
     }
 
-    String concatBits = "";
+    String concatenationBits = '';
     for (int i = 0; phraseIndexes.length > i; i++) {
-      concatBits +=
+      concatenationBits +=
           (phraseIndexes[i].toRadixString(2).padLeft(bitsFillSequence[i], '0'));
     }
     List<int> entropy_ = List.filled(entropyLengthBits ~/ 8, 0);
@@ -159,7 +154,7 @@ class Mnemonic {
         entropyId += 1) {
       entropy_[entropyId] = 0;
       for (int i = 0; 8 > i; i++) {
-        if (concatBits[(entropyId * 8) + i] == '1') {
+        if (concatenationBits[(entropyId * 8) + i] == '1') {
           bitInt = 1;
         } else {
           bitInt = 0;
@@ -177,22 +172,23 @@ class Mnemonic {
   }
 
   /// The [toMnemonic] method returns mnemonic in Formosa standard from given entropy [data].
-  /// If input data is not approriate or number of bytes is not adequate info message is returned.
+  /// If input data is not appropriate or number of bytes is not adequate info message is returned.
   String toMnemonic(dynamic data) {
-    int leastMmultiple = 4;
+    int leastMultiple = 4;
 
     if (data is! String && data is! List<int>) {
-      return "Input data is not byte or string.";
+      return 'Input data is not byte or string.';
     }
 
-    if ((data.length) % leastMmultiple != 0) {
-      return "Number of bytes should be multiple of$leastMmultiple but it is ${data.length}";
+    if ((data.length) % leastMultiple != 0) {
+      return 'Number of bytes should be multiple of $leastMultiple'
+          ' but it is ${data.length}';
     }
 
     if (data is String) {
       data = utf8.encode(data);
       int paddingLength =
-          ((leastMmultiple - (data.length % leastMmultiple))) % leastMmultiple;
+          ((leastMultiple - (data.length % leastMultiple))) % leastMultiple;
       List<int> padding = [];
       for (int i = 0; paddingLength > i; i++) {
         padding.add(32);
@@ -202,7 +198,7 @@ class Mnemonic {
 
     var hashObject = sha256.convert(data);
 
-    String entropyBits = "";
+    String entropyBits = '';
     String binaryRepresentation;
     for (int data_ in data) {
       binaryRepresentation = data_.toRadixString(2);
@@ -214,8 +210,8 @@ class Mnemonic {
       entropyBits += binaryRepresentation;
     }
 
-    String checksumBits_ = "";
-    String checksumBits = "";
+    String checksumBits_ = '';
+    String checksumBits = '';
     for (int data_ in hashObject.bytes) {
       binaryRepresentation = data_.toRadixString(2);
       //add leading zeros
@@ -227,17 +223,33 @@ class Mnemonic {
       checksumBits_ += (binaryRepresentation);
     }
 
-    double checksumLenght_ = data.length * 8 / 32;
-    int checksumLenght = checksumLenght_.toInt();
-    for (int i = 0; checksumLenght > i; i++) {
+    double checksumLength_ = data.length * 8 / 32;
+    int checksumLength = checksumLength_.toInt();
+    for (int i = 0; checksumLength > i; i++) {
       checksumBits += checksumBits_.toBitList()[i].toString();
     }
 
     String dataBits = entropyBits + checksumBits;
 
-    List sentences = wordsDictionary.getSentencesFromBits(dataBits);
+    List sentences = _mnemonicThemeData.getSentencesFromBits(dataBits);
 
-    String mnemonic = sentences.join(" ");
+    String mnemonic = sentences.join(' ');
     return mnemonic;
+  }
+
+  /// Returns a list of all supported themes.
+  static List<Theme> findThemes() {
+    return Theme.values;
+  }
+
+  /// Returns a normalized [bytesText] to normal from [unorm.NFKD] of Unicode.
+  static String normalizeBytes(List<int> bytesText) {
+    String unicodeText = utf8.decode(bytesText);
+    return unorm.nfkd(unicodeText);
+  }
+
+  /// Returns a normalized given [text] to normal from [unorm.NFKD] of Unicode.
+  static String normalizeString(String text) {
+    return unorm.nfkd(text);
   }
 }

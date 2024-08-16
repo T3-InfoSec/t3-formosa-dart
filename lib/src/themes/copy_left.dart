@@ -1,4 +1,4 @@
-const Map<String, dynamic> copyLeft = {
+const Map<String, dynamic> copyLeftData = {
   "ADJECTIVE": {
     "BIT_LENGTH": 5,
     "LEADS": [],

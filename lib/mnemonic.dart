@@ -12,3 +12,4 @@
 library;
 
 export 'src/mnemonic_base.dart';
+export 'src/themes/themes.dart';

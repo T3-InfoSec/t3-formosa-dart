@@ -1,4 +1,4 @@
-const Map<String, dynamic> sciFi = {
+const Map<String, dynamic> sciFiData = {
   "ADJECTIVE": {
     "BIT_LENGTH": 5,
     "LED_BY": "OBJECT",

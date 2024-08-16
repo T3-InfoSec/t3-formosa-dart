@@ -5,15 +5,18 @@ import 'dart:collection';
 /// Mnemonic theme implementation which wraps the theme information, from
 /// stored theme files, into one that is compatible for [Mnemonic] class.
 class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
-  static String fillSequenceKey = "FILLING_ORDER";
+  static String fillSequenceKey = 'FILLING_ORDER';
 
-  static String naturalSequenceKey = "NATURAL_ORDER";
-  static String leadsKeyword = "LEADS";
-  static String ledKeyword = "LED_BY";
-  static String totalsKeyword = "TOTAL_LIST";
-  static String imageKeyword = "IMAGE";
-  static String mappingKeyword = "MAPPING";
-  static String bitsKeyword = "BIT_LENGTH";
+  static String naturalSequenceKey = 'NATURAL_ORDER';
+  static String leadsKeyword = 'LEADS';
+  static String ledKeyword = 'LED_BY';
+  static String totalsKeyword = 'TOTAL_LIST';
+  static String imageKeyword = 'IMAGE';
+  static String mappingKeyword = 'MAPPING';
+  static String bitsKeyword = 'BIT_LENGTH';
+
+  // Using [_internalMap] to access the super class of the [MnemonicTheme],
+  // and using [this] to access the extended attributes and methods.
   final Map<K, dynamic> _internalMap;
 
   /// Create and initialize a [MnemonicTheme] instance.
@@ -21,14 +24,14 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
   /// The [Theme] is a string that specifies the theme name, by default it is
   /// "bip39" theme. Returns [MnemonicTheme] instance based on the provided
   /// [theme].
-  MnemonicTheme({required Map<K, V> theme}) : _internalMap = theme;
+  MnemonicTheme({required Map<K, V> themeData}) : _internalMap = themeData;
 
   /// Returns a list of words in restriction sequence to form a sentence.
   List<String> get fillingOrder {
     List<String> fillingOrderList = [];
 
-    if (_internalMap[fillSequenceKey] != null) {
-      fillingOrderList = _internalMap[fillSequenceKey];
+    if (this[fillSequenceKey] != null) {
+      fillingOrderList = this[fillSequenceKey];
     }
 
     return fillingOrderList;
@@ -39,8 +42,8 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
   List get image {
     List image;
 
-    if (_internalMap.containsKey(imageKeyword)) {
-      image = _internalMap[imageKeyword];
+    if (this.containsKey(imageKeyword)) {
+      image = this[imageKeyword];
     } else {
       image = [];
     }
@@ -62,11 +65,11 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
 
   /// Returns list of words which correspond to key [leadsKeyword] from
   /// the current theme type.
-  List<String> get leads {
-    List<String> ledList;
+  List get leads {
+    List ledList;
 
-    if (_internalMap.containsKey(leadsKeyword)) {
-      ledList = _internalMap[leadsKeyword];
+    if (this.containsKey(leadsKeyword)) {
+      ledList = this[leadsKeyword];
     } else {
       ledList = [];
     }
@@ -76,7 +79,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
 
   /// Returns word that leads the current theme type.
   String get ledBy {
-    var ledBy_ = _internalMap[ledKeyword] ? _internalMap[ledKeyword] : '';
+    var ledBy_ = (this[ledKeyword] != null) ? this[ledKeyword] : '';
     return ledBy_.toString();
   }
 
@@ -85,10 +88,10 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
   MnemonicTheme get mapping {
     MnemonicTheme mapping;
 
-    if (_internalMap.containsKey(mappingKeyword)) {
-      mapping = _internalMap[mappingKeyword];
+    if (this.containsKey(mappingKeyword)) {
+      mapping = this[mappingKeyword];
     } else {
-      mapping = MnemonicTheme(theme: {});
+      mapping = MnemonicTheme(themeData: {});
     }
 
     return mapping;
@@ -109,8 +112,8 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
   List<String> get naturalOrder {
     List<String> naturalOrder_;
 
-    if (_internalMap.containsKey(naturalSequenceKey)) {
-      naturalOrder_ = _internalMap[naturalSequenceKey];
+    if (this.containsKey(naturalSequenceKey)) {
+      naturalOrder_ = this[naturalSequenceKey];
     } else {
       naturalOrder_ = [];
     }
@@ -123,9 +126,9 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
   @override
   dynamic operator [](dynamic key) {
     if (_internalMap[key] == null) {
-      return MnemonicTheme(theme: <K, dynamic>{});
+      return MnemonicTheme(themeData: <K, dynamic>{});
     } else if (_internalMap[key] is Map<K, dynamic>) {
-      return MnemonicTheme(theme: _internalMap[key]);
+      return MnemonicTheme(themeData: _internalMap[key]);
     } else {
       return _internalMap[key];
     }
@@ -141,7 +144,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
   @override
   void operator []=(K key, dynamic value) {
     if (value is Map<K, dynamic>) {
-      _internalMap[key] = MnemonicTheme(theme: value);
+      _internalMap[key] = MnemonicTheme(themeData: value);
     } else {
       _internalMap[key] = value;
     }
@@ -153,10 +156,10 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
   List<String> assembleSentence(String dataBits) {
     int bitIndex = 0;
     List<String> fillingOrderList = fillingOrder;
-    List<String> currentSentence = List.filled(fillingOrderList.length, "");
+    List<String> currentSentence = List.filled(fillingOrderList.length, '');
 
     for (var syntacticKey in fillingOrderList) {
-      int bitLength = _internalMap[syntacticKey].bitLength();
+      int bitLength = this[syntacticKey].bitLength();
 
       // Integer from substring of zeroes and ones representing index of
       // current word within its list
@@ -177,10 +180,10 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
   /// Returns the number of bits which correspond to bits keyword in the
   /// theme type.
   int bitLength() {
-    if (_internalMap[bitsKeyword] == null) {
+    if (this[bitsKeyword] == null) {
       return 0;
     } else {
-      return _internalMap[bitsKeyword];
+      return this[bitsKeyword];
     }
   }
 
@@ -192,7 +195,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     var filingWords = fillingOrder;
 
     for (String word in filingWords) {
-      result.add(_internalMap[word].bitLength());
+      result.add(this[word].bitLength());
     }
 
     return result;
@@ -204,7 +207,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     int sum = 0;
 
     for (String word in filingWords) {
-      sum += _internalMap[word].bitLength() as int;
+      sum += this[word].bitLength() as int;
     }
 
     return sum;
@@ -268,7 +271,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     var primeSyntacticList_ = primeSyntacticLeads();
 
     if (primeSyntacticList_.contains(syntacticKey)) {
-      leadList = _internalMap[syntacticKey].totalWords();
+      leadList = this[syntacticKey].totalWords();
     } else {
       var mapping = getLeadMapping(syntacticKey);
       var leadingWord_ = sentence[getLedByIndex(syntacticKey)];
@@ -281,19 +284,19 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
   /// Returns instance of [MnemonicTheme] class that led by the [ledBy]
   /// leading word.
   MnemonicTheme getLeadMapping(String ledBy) {
-    return _internalMap[_internalMap[ledBy].ledBy][ledBy].mapping;
+    return this[this[ledBy].ledBy][ledBy].mapping;
   }
 
   /// Returns the natural index of the leading word [syntacticKey].
   int getLedByIndex(String syntacticKey) {
-    return naturalIndex(_internalMap[syntacticKey].ledBy);
+    return naturalIndex(this[syntacticKey].ledBy);
   }
 
   /// Returns a new class of [MnemonicTheme] for the mapping of the leading
   /// word [ledByWord] string as a key.
   MnemonicTheme getLedByMapping(String ledByWord) {
-    String syntacticLeads_ = _internalMap[ledByWord].ledBy;
-    return _internalMap[syntacticLeads_][ledByWord].mapping;
+    String syntacticLeads_ = this[ledByWord].ledBy;
+    return this[syntacticLeads_][ledByWord].mapping;
   }
 
   /// Returns the indexes of a sentence from the lists ordered as natural
@@ -383,7 +386,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     if (syntacticRelation is String && mnemonicRelation is String) {
       var syntacticLeads_ = syntacticRelation;
       var mnemoLeads = mnemonicRelation;
-      var wordsList = _internalMap[syntacticLeads_].totalWords();
+      var wordsList = this[syntacticLeads_].totalWords();
       var mnemoIndex = naturalIndex(syntacticRelation);
       var wordIndex = wordsList.indexOf(mnemoLeads);
 
@@ -397,7 +400,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
       String mnemoLed = mnemonicRelation.$2;
       int mnemoIndex = naturalIndex(syntacticLed_);
       MnemonicTheme restrictionDict =
-          _internalMap[syntacticLeads_][syntacticLed_].mapping;
+          this[syntacticLeads_][syntacticLed_].mapping;
       List<String> wordsList = List<String>.from(restrictionDict[mnemoLeads]);
       var wordIndex = wordsList.indexOf(mnemoLed);
 
@@ -453,7 +456,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     List<String> result = [];
     List<String> fillingWords_ = fillingOrder;
     for (String word in fillingWords_) {
-      if (_internalMap[word].ledBy == 'NONE') {
+      if (this[word].ledBy == 'NONE') {
         result.add(word);
       }
     }
@@ -496,7 +499,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     List<(String, String)> result = [];
     var filingWords_ = fillingOrder;
     for (String word in filingWords_) {
-      var leadsBy_ = _internalMap[word].leads;
+      var leadsBy_ = this[word].leads;
       for (String restrictionWord in leadsBy_) {
         result.add((word, restrictionWord));
       }
@@ -531,7 +534,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     var filingWords_ = fillingOrder;
     // Iterate through all phrases in theme.
     for (String word in filingWords_) {
-      result.addAll(_internalMap[word].totalWords());
+      result.addAll(this[word].totalWords());
     }
     // Removes duplicate words from list.
     return result.toSet().toList();
@@ -545,7 +548,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
 
     if (wordsPerPhrase_ != wordsNaturalOrder_) {
       // Theme is malformed.
-      throw "Theme is malformed!";
+      throw 'Theme is malformed!';
     }
 
     return wordsPerPhrase_;

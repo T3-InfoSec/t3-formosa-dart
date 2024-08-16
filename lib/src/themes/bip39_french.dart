@@ -1,4 +1,4 @@
-const Map<String, dynamic> bip39French = {
+const Map<String, dynamic> bip39FrenchData = {
   "FILLING_ORDER": ["WORDS"],
   "NATURAL_ORDER": ["WORDS"],
   "WORDS": {
