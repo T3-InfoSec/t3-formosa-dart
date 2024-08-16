@@ -10,14 +10,14 @@ import 'themes/themes.dart';
 
 /// A wrap implementation upon bip39 for supporting semantically connected
 /// words implementation upon multiple supported themes.
-class Mnemonic {
+class Formosa {
   static Theme defaultTheme = Theme.bip39;
 
   final String _mnemonicThemeName;
   final MnemonicTheme _mnemonicThemeData;
 
-  /// Creates a [Mnemonic] instance with data of a specific [theme].
-  Mnemonic({required Theme theme})
+  /// Creates a [Formosa] instance with data of a specific [theme].
+  Formosa({required Theme theme})
       : _mnemonicThemeName = theme.label,
         _mnemonicThemeData = MnemonicTheme(themeData: theme.themeData);
 

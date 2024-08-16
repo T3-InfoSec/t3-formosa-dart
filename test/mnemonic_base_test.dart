@@ -2,17 +2,19 @@ import 'package:mnemonic/mnemonic.dart';
 import 'package:test/test.dart';
 
 void main() async {
-  final bip39 = Mnemonic(theme: Theme.bip39);
-  final bip39French = Mnemonic(theme: Theme.bip39French);
-  final cutePets = Mnemonic(theme: Theme.cutePets);
-  final medievalFantasy = Mnemonic(theme: Theme.medievalFantasy);
-  final sciFi = Mnemonic(theme: Theme.sciFi);
+  final bip39 = Formosa(theme: Theme.bip39);
+  final bip39French = Formosa(theme: Theme.bip39French);
+  final cutePets = Formosa(theme: Theme.cutePets);
+  final medievalFantasy = Formosa(theme: Theme.medievalFantasy);
+  final sciFi = Formosa(theme: Theme.sciFi);
+
   test('Check does isBip39Theme function returns expected value.', () {
     expect(bip39.isBip39Theme(), true);
     expect(medievalFantasy.isBip39Theme(), false);
     expect(cutePets.isBip39Theme(), false);
     expect(sciFi.isBip39Theme(), false);
   });
+
   test('Check does detectTheme function finds appropriate theme.', () {
     expect(bip39.detectTheme(['ability']), 'bip39');
     expect(bip39.detectTheme(['aboutir']), 'bip39_french');

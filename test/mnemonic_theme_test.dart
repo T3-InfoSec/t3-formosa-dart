@@ -6,9 +6,9 @@ void main() async {
   String naturalSeqKey = 'NATURAL_ORDER';
   String totalList = 'TOTAL_LIST';
 
-  Mnemonic bip39_ = Mnemonic(theme: Theme.bip39);
-  Mnemonic medievalFantasy = Mnemonic(theme: Theme.medievalFantasy);
-  Mnemonic cutePets = Mnemonic(theme: Theme.cutePets);
+  Formosa bip39_ = Formosa(theme: Theme.bip39);
+  Formosa medievalFantasy = Formosa(theme: Theme.medievalFantasy);
+  Formosa cutePets = Formosa(theme: Theme.cutePets);
 
   test('Check does is_bip39_theme function returns expected value.', () {
     expect(bip39_.isBip39Theme(), true);

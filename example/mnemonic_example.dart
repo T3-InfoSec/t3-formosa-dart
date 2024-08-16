@@ -1,7 +1,7 @@
 import 'package:mnemonic/mnemonic.dart';
 
 void main() {
-  Mnemonic m = Mnemonic("finances");
+  Formosa m = Formosa(theme: Theme.finances);
 
   List<int> randomEntropy = [33, 254, 255, 33, 255, 56, 18, 51];
   String resultingMnemonic = m.toMnemonic(randomEntropy);
@@ -11,8 +11,8 @@ void main() {
   print(entropyFromMnemonic);
 
   if (randomEntropy.toString() == entropyFromMnemonic.toString()) {
-    print("Equal!");
+    print('Equal!');
   } else {
-    print("Not Equal!");
+    print('Not Equal!');
   }
 }
