@@ -8,15 +8,15 @@ import 'package:unorm_dart/unorm_dart.dart' as unorm;
 import 'mnemonic_theme.dart';
 import 'themes/themes.dart';
 
-/// Class provides abstraction for mnemonic which is created based on theme dictionary.
+/// A wrap implementation upon bip39 for supporting semantically connected
+/// words implementation upon multiple supported themes.
 class Mnemonic {
   static Theme defaultTheme = Theme.bip39;
 
   final String _mnemonicThemeName;
   final MnemonicTheme _mnemonicThemeData;
 
-  ///Constructor for the [Mnemonic] class returns instance of [Mnemonic] object with inner
-  ///dictionary populated with specific [theme].
+  /// Creates a [Mnemonic] instance with data of a specific [theme].
   Mnemonic({required Theme theme})
       : _mnemonicThemeName = theme.label,
         _mnemonicThemeData = MnemonicTheme(themeData: theme.themeData);
@@ -25,9 +25,10 @@ class Mnemonic {
 
   String get mnemonicThemeName => _mnemonicThemeName;
 
-  /// The [detectTheme] method returns in which themes list of words defined with
-  /// [code] can be found. If theme is ambiguous or there is multiple themes found
-  ///  info message is returned.
+  /// Returns in which themes list of words defined with [code] can be found.
+  ///
+  /// If theme is ambiguous or there is multiple themes found info message
+  /// is returned.
   String detectTheme(List code) {
     var possibleThemes = findThemes();
     List foundThemes = [];
@@ -54,6 +55,10 @@ class Mnemonic {
     return '';
   }
 
+  /// Returns mnemonic words from [password].
+  ///
+  /// Recover the mnemonic words from the [password]. The [password]
+  /// contains the first letters of each word from the mnemonic.
   // TODO: Complete the implementation.
   String expandPassword(String password) {
     int n = (isBip39Theme()) ? 4 : 2;
@@ -70,7 +75,7 @@ class Mnemonic {
     return '';
   }
 
-  /// The [formatMnemonic] method returns formatted [mnemonic] in unique way.
+  /// Returns a formatted [mnemonic] in unique way.
   String formatMnemonic(dynamic mnemonic) {
     if (mnemonic is String) {
       mnemonic = mnemonic.split(' ');
@@ -80,8 +85,8 @@ class Mnemonic {
 
     String password = '';
     String word;
-    //Concatenate the first n letters of each word in a single string
-    //If the word in BIP39 has 3 letters finish with "-"
+    // Concatenate the first n letters of each word in a single string
+    // If the word in BIP39 has 3 letters finish with "-"
     for (String word_ in mnemonic) {
       word = word_;
       if (n > word.length) {
@@ -94,8 +99,7 @@ class Mnemonic {
     return password;
   }
 
-  /// The [generate] method returns pattern which
-  /// complication is measured by [strength] parameter.
+  /// Returns pattern which complication is measured by [strength] parameter.
   String generate(int strength) {
     if ((strength % 32 != 0) && (strength > 256)) {
       return ('Strength should be below 256 and a multiple of 32, but it is$strength');
@@ -111,7 +115,8 @@ class Mnemonic {
     return mnemonicThemeName == 'bip39';
   }
 
-  /// The [toEntropy] method returns a entropy using provided one or set of [words].
+  /// The [toEntropy] method returns a entropy using provided one
+  /// or set of [words].
   List<int> toEntropy(dynamic words) {
     if (words is String) {
       words = words.split(' ');
@@ -126,10 +131,10 @@ class Mnemonic {
       // The number of [words] doesn't have good multiple.
       return [0];
     }
-    //Look up all the words in the list and construct the
-    //concatenation of the original entropy and the checksum.
+    // Look up all the words in the list and construct the
+    // concatenation of the original entropy and the checksum.
 
-    //Determining strength of the password
+    // Determining strength of the password
     int numberPhrases = wordsSize ~/ wordsDict.wordsPerPhrase();
     int concatenationLenBits = numberPhrases * wordsDict.bitsPerPhrase();
     int checksumLengthBits = concatenationLenBits ~/ bitsPerChecksumBit.round();
@@ -171,8 +176,9 @@ class Mnemonic {
     return entropy;
   }
 
-  /// The [toMnemonic] method returns mnemonic in Formosa standard from given entropy [data].
-  /// If input data is not appropriate or number of bytes is not adequate info message is returned.
+  /// Returns mnemonic in Formosa standard from given entropy [data]. If
+  /// input data is not appropriate or number of bytes is not adequate
+  /// info message is returned.
   String toMnemonic(dynamic data) {
     int leastMultiple = 4;
 

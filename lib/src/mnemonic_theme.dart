@@ -21,9 +21,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
 
   /// Create and initialize a [MnemonicTheme] instance.
   ///
-  /// The [Theme] is a string that specifies the theme name, by default it is
-  /// "bip39" theme. Returns [MnemonicTheme] instance based on the provided
-  /// [theme].
+  /// Returns [MnemonicTheme] instance based on the provided [themeData].
   MnemonicTheme({required Map<K, V> themeData}) : _internalMap = themeData;
 
   /// Returns a list of words in restriction sequence to form a sentence.
