@@ -5,7 +5,7 @@ import 'package:binary/binary.dart';
 import 'package:crypto/crypto.dart';
 import 'package:unorm_dart/unorm_dart.dart' as unorm;
 
-import 'mnemonic_theme.dart';
+import 'formosa_theme.dart';
 import 'themes/themes.dart';
 
 /// A wrap implementation upon bip39 for supporting semantically connected
@@ -13,17 +13,17 @@ import 'themes/themes.dart';
 class Formosa {
   static Theme defaultTheme = Theme.bip39;
 
-  final String _mnemonicThemeName;
-  final MnemonicTheme _mnemonicThemeData;
+  final String _formosaThemeName;
+  final FormosaTheme _formosaThemeData;
 
   /// Creates a [Formosa] instance with data of a specific [theme].
   Formosa({required Theme theme})
-      : _mnemonicThemeName = theme.label,
-        _mnemonicThemeData = MnemonicTheme(themeData: theme.themeData);
+      : _formosaThemeName = theme.label,
+        _formosaThemeData = FormosaTheme(themeData: theme.themeData);
 
-  MnemonicTheme get mnemonicThemeData => _mnemonicThemeData;
+  FormosaTheme get formosaThemeData => _formosaThemeData;
 
-  String get mnemonicThemeName => _mnemonicThemeName;
+  String get formosaThemeName => _formosaThemeName;
 
   /// Returns in which themes list of words defined with [code] can be found.
   ///
@@ -32,10 +32,10 @@ class Formosa {
   String detectTheme(List code) {
     var possibleThemes = findThemes();
     List foundThemes = [];
-    MnemonicTheme temp;
+    FormosaTheme temp;
     for (String word in code) {
       for (Theme theme in possibleThemes) {
-        temp = MnemonicTheme(themeData: theme.themeData);
+        temp = FormosaTheme(themeData: theme.themeData);
         if (temp.wordList().contains(word)) {
           foundThemes.add(theme);
         }
@@ -51,14 +51,14 @@ class Formosa {
   }
 
   // TODO: Complete the implementation.
-  String expand(dynamic mnemonic) {
+  String expand(dynamic formosa) {
     return '';
   }
 
-  /// Returns mnemonic words from [password].
+  /// Returns formosa words from [password].
   ///
-  /// Recover the mnemonic words from the [password]. The [password]
-  /// contains the first letters of each word from the mnemonic.
+  /// Recover the formosa words from the [password]. The [password]
+  /// contains the first letters of each word from the formosa.
   // TODO: Complete the implementation.
   String expandPassword(String password) {
     int n = (isBip39Theme()) ? 4 : 2;
@@ -71,14 +71,14 @@ class Formosa {
   }
 
   // TODO: Complete the implementation.
-  String expandWord(dynamic mnemonic) {
+  String expandWord(dynamic formosa) {
     return '';
   }
 
-  /// Returns a formatted [mnemonic] in unique way.
-  String formatMnemonic(dynamic mnemonic) {
-    if (mnemonic is String) {
-      mnemonic = mnemonic.split(' ');
+  /// Returns a formatted [formosa] in unique way.
+  String formatFormosa(dynamic formosa) {
+    if (formosa is String) {
+      formosa = formosa.split(' ');
     }
 
     int n = (isBip39Theme()) ? 4 : 2;
@@ -87,7 +87,7 @@ class Formosa {
     String word;
     // Concatenate the first n letters of each word in a single string
     // If the word in BIP39 has 3 letters finish with "-"
-    for (String word_ in mnemonic) {
+    for (String word_ in formosa) {
       word = word_;
       if (n > word.length) {
         word += '-';
@@ -106,13 +106,13 @@ class Formosa {
     }
     var rand = Random();
     double strength_ = strength / 8;
-    return toMnemonic(rand.nextInt(strength_.toInt()));
+    return toFormosa(rand.nextInt(strength_.toInt()));
   }
 
   /// The [isBip39Theme] checks is selected theme equal to BIP39.
   /// Returns 'true' if default theme is BIP39, else returns 'false'.
   bool isBip39Theme() {
-    return mnemonicThemeName == 'bip39';
+    return formosaThemeName == 'bip39';
   }
 
   /// The [toEntropy] method returns a entropy using provided one
@@ -123,7 +123,7 @@ class Formosa {
     }
 
     int wordsSize = words.length;
-    var wordsDict = _mnemonicThemeData;
+    var wordsDict = _formosaThemeData;
     int phraseAmount = wordsDict.getPhraseAmount(words);
     int phraseSize = wordsDict.wordsPerPhrase();
     int bitsPerChecksumBit = 33;
@@ -143,7 +143,7 @@ class Formosa {
 
     List bitsFillSequence = [];
     for (int i = 0; phraseAmount > i; i++) {
-      bitsFillSequence += _mnemonicThemeData.bitsFillSequence();
+      bitsFillSequence += _formosaThemeData.bitsFillSequence();
     }
 
     String concatenationBits = '';
@@ -176,10 +176,10 @@ class Formosa {
     return entropy;
   }
 
-  /// Returns mnemonic in Formosa standard from given entropy [data]. If
+  /// Returns formosa in Formosa standard from given entropy [data]. If
   /// input data is not appropriate or number of bytes is not adequate
   /// info message is returned.
-  String toMnemonic(dynamic data) {
+  String toFormosa(dynamic data) {
     int leastMultiple = 4;
 
     if (data is! String && data is! List<int>) {
@@ -237,10 +237,10 @@ class Formosa {
 
     String dataBits = entropyBits + checksumBits;
 
-    List sentences = _mnemonicThemeData.getSentencesFromBits(dataBits);
+    List sentences = _formosaThemeData.getSentencesFromBits(dataBits);
 
-    String mnemonic = sentences.join(' ');
-    return mnemonic;
+    String formosa = sentences.join(' ');
+    return formosa;
   }
 
   /// Returns a list of all supported themes.

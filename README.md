@@ -4,23 +4,23 @@ Dart implementation of Formosa, for use in T3 Vault.
 
 [Formosa](https://github.com/Yuri-SVB/formosa) is a password format that maximizes the ratio of password strength to user effort.
 
-The password generation process consists of mapping input into meaningful mnemonic sentences, that are, then, condensed into the password.
+The password generation process consists of mapping input into meaningful formosa sentences, that are, then, condensed into the password.
 
 This is an improvement on the BIP-0039 method -- which provides sequences of semantically and syntactically disconnected words as passphrases -- because it uses meaningful phrases with a certain theme.
 
 ## Features
 
--   Generate mnemonic based on specific entropy.
--   Reverse entropy from mnemonic.
--   Choose specific theme to create mnemonic.
+-   Generate formosa based on specific entropy.
+-   Reverse entropy from formosa.
+-   Choose specific theme to create formosa.
 
 ## Getting started
 
-To start using Mnemonic, add it to your `pubspec.yaml`:
+To start using Formosa, add it to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-    mnemonic: ^0.1.0-dev
+    t3_formosa: ^0.1.0-dev
 ```
 
 Then, run the following command to install the package.
@@ -31,10 +31,10 @@ dart pub get
 
 ### Running tests
 
-To run the tests for Mnemonic, use the following command in the root directory:
+To run the tests for Formosa, use the following command in the root directory:
 
 ```bash
-dart test test/mnemonic_test.dart
+dart test test/formosa_test.dart
 ```
 
 or simply:
@@ -45,30 +45,33 @@ dart test
 
 ## Usage
 
-Example code on how to use Formosa to generate mnemonic hash sentences.
+Example code on how to use Formosa to generate formosa hash sentences.
 
 ```dart
 import 'package:collection/collection.dart';
-import 'package:knowledge/mnemonics.dart';
+import 'package:t3_formosa/formosa.dart';
 
 void main() {
-  // Create a Mnemonic instance
-  Mnemonic mnemonic = Mnemonic("BIP39");
+  // Create a Formosa instance
+  Formosa formosa = Formosa(theme: Theme.finances);
   Function eq = const ListEquality().equals;
 
-  List<int> random_entropy = [33,254,255,33,255,56,18,51];
+  List<int> randomEntropy = [33, 254, 255, 33, 255, 56, 18, 51];
 
-  // Generate an unique mnemonic based on input.
-  var resulting_mnemonic =  m.to_mnemonic(random_entropy);
+  // Generate an unique formosa based on input.
+  String resultingFormosa = formosa.toFormosa(randomEntropy);
 
   // Reverse the process.
-  var entropy_from_mnemonic = m.to_entropy(resulting_mnemonic);
+  List<int> entropyFromFormosa = formosa.toEntropy(resultingFormosa);
 
-  //Check did process went fine.
-  if (eq(random_entropy, entropy_from_mnemonic)){
-    print("Equal!");
+  print(resultingFormosa);
+  print(entropyFromFormosa);
+
+  // Check did process went fine.
+  if (randomEntropy.toString() == entropyFromFormosa.toString()) {
+    print('Equal!');
   } else {
-    print("Not Equal!");
+    print('Not Equal!');
   }
 }
 ```

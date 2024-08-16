@@ -1,10 +1,10 @@
 import 'dart:collection';
 
-/// Theme implementation compatible with mnemonic requirements.
+/// Theme implementation compatible with formosa requirements.
 ///
-/// Mnemonic theme implementation which wraps the theme information, from
-/// stored theme files, into one that is compatible for [Mnemonic] class.
-class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
+/// Formosa theme implementation which wraps the theme information, from
+/// stored theme files, into one that is compatible for [Formosa] class.
+class FormosaTheme<K extends String, V> extends MapBase<K, dynamic> {
   static String fillSequenceKey = 'FILLING_ORDER';
 
   static String naturalSequenceKey = 'NATURAL_ORDER';
@@ -15,14 +15,14 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
   static String mappingKeyword = 'MAPPING';
   static String bitsKeyword = 'BIT_LENGTH';
 
-  // Using [_internalMap] to access the super class of the [MnemonicTheme],
+  // Using [_internalMap] to access the super class of the [FormosaTheme],
   // and using [this] to access the extended attributes and methods.
   final Map<K, dynamic> _internalMap;
 
-  /// Create and initialize a [MnemonicTheme] instance.
+  /// Create and initialize a [FormosaTheme] instance.
   ///
-  /// Returns [MnemonicTheme] instance based on the provided [themeData].
-  MnemonicTheme({required Map<K, V> themeData}) : _internalMap = themeData;
+  /// Returns [FormosaTheme] instance based on the provided [themeData].
+  FormosaTheme({required Map<K, V> themeData}) : _internalMap = themeData;
 
   /// Returns a list of words in restriction sequence to form a sentence.
   List<String> get fillingOrder {
@@ -49,13 +49,13 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return image;
   }
 
-  /// The keys of this [MnemonicTheme].
+  /// The keys of this [FormosaTheme].
   ///
   /// The returned iterable has efficient length and contains operations,
-  /// based on [length] and [containsKey] of the [MnemonicTheme].
+  /// based on [length] and [containsKey] of the [FormosaTheme].
   ///
   /// The order of iteration is defined by the individual Map implementation,
-  /// but must be consistent between changes to the [MnemonicTheme].
+  /// but must be consistent between changes to the [FormosaTheme].
   ///
   /// Modifying the map while iterating the keys may break the iteration.
   @override
@@ -83,13 +83,13 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
 
   /// Returns list of words which correspond to key [mappingKeyword]
   /// from the current theme type.
-  MnemonicTheme get mapping {
-    MnemonicTheme mapping;
+  FormosaTheme get mapping {
+    FormosaTheme mapping;
 
     if (this.containsKey(mappingKeyword)) {
       mapping = this[mappingKeyword];
     } else {
-      mapping = MnemonicTheme(themeData: {});
+      mapping = FormosaTheme(themeData: {});
     }
 
     return mapping;
@@ -119,14 +119,14 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return naturalOrder_;
   }
 
-  /// Returns the [value] of the given [key], or [MnemonicTheme] if [key] is
-  /// not in the [MnemonicTheme] or it is a [Map].
+  /// Returns the [value] of the given [key], or [FormosaTheme] if [key] is
+  /// not in the [FormosaTheme] or it is a [Map].
   @override
   dynamic operator [](dynamic key) {
     if (_internalMap[key] == null) {
-      return MnemonicTheme(themeData: <K, dynamic>{});
+      return FormosaTheme(themeData: <K, dynamic>{});
     } else if (_internalMap[key] is Map<K, dynamic>) {
-      return MnemonicTheme(themeData: _internalMap[key]);
+      return FormosaTheme(themeData: _internalMap[key]);
     } else {
       return _internalMap[key];
     }
@@ -134,15 +134,15 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
 
   /// Associate the [key] with the given [value].
   ///
-  /// If the [key] was already in the [MnemonicTheme], its associated [value]
-  /// is changed. Otherwise, the value/key pair is added to [MnemonicTheme].
+  /// If the [key] was already in the [FormosaTheme], its associated [value]
+  /// is changed. Otherwise, the value/key pair is added to [FormosaTheme].
   ///
-  /// If the [value] is of type [Map] type, if is converted to [MnemonicTheme]
+  /// If the [value] is of type [Map] type, if is converted to [FormosaTheme]
   /// type before it is associated to the [key].
   @override
   void operator []=(K key, dynamic value) {
     if (value is Map<K, dynamic>) {
-      _internalMap[key] = MnemonicTheme(themeData: value);
+      _internalMap[key] = FormosaTheme(themeData: value);
     } else {
       _internalMap[key] = value;
     }
@@ -211,9 +211,9 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return sum;
   }
 
-  /// Removes all entries from the [MnemonicTheme].
+  /// Removes all entries from the [FormosaTheme].
   ///
-  /// After this, the [MnemonicTheme] is empty.
+  /// After this, the [FormosaTheme] is empty.
   @override
   void clear() {
     _internalMap.clear();
@@ -262,7 +262,7 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
 
   /// Returns a list of words led by [syntacticKey] the underline theme type.
   ///
-  /// If [MnemonicTheme] doesn't have words with key [fillSequenceKey] then
+  /// If [FormosaTheme] doesn't have words with key [fillSequenceKey] then
   /// the list of the words defined in [sentence] will be used.
   List getLeadList(String syntacticKey, List sentence) {
     var leadList = [];
@@ -279,9 +279,9 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return leadList;
   }
 
-  /// Returns instance of [MnemonicTheme] class that led by the [ledBy]
+  /// Returns instance of [FormosaTheme] class that led by the [ledBy]
   /// leading word.
-  MnemonicTheme getLeadMapping(String ledBy) {
+  FormosaTheme getLeadMapping(String ledBy) {
     return this[this[ledBy].ledBy][ledBy].mapping;
   }
 
@@ -290,9 +290,9 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return naturalIndex(this[syntacticKey].ledBy);
   }
 
-  /// Returns a new class of [MnemonicTheme] for the mapping of the leading
+  /// Returns a new class of [FormosaTheme] for the mapping of the leading
   /// word [ledByWord] string as a key.
-  MnemonicTheme getLedByMapping(String ledByWord) {
+  FormosaTheme getLedByMapping(String ledByWord) {
     String syntacticLeads_ = this[ledByWord].ledBy;
     return this[syntacticLeads_][ledByWord].mapping;
   }
@@ -338,24 +338,24 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return wordIndexes;
   }
 
-  /// Returns the amount of phrases in [mnemonic].
-  int getPhraseAmount(dynamic mnemonic) {
-    if (mnemonic is String) mnemonic = mnemonic.split(' ');
+  /// Returns the amount of phrases in [formosa].
+  int getPhraseAmount(dynamic formosa) {
+    if (formosa is String) formosa = formosa.split(' ');
 
-    var mnemonicSize_ = mnemonic.length;
+    var formosaSize_ = formosa.length;
     var phraseSize_ = wordsPerPhrase();
 
-    var phraseAmount_ = (mnemonicSize_ / phraseSize_);
+    var phraseAmount_ = (formosaSize_ / phraseSize_);
 
     return phraseAmount_.round();
   }
 
-  /// Returns indexes of [mnemonic] from each sentence in it.
-  List<int> getPhraseIndexes(dynamic mnemonic) {
-    if (mnemonic is String) mnemonic = mnemonic.split(' ');
+  /// Returns indexes of [formosa] from each sentence in it.
+  List<int> getPhraseIndexes(dynamic formosa) {
+    if (formosa is String) formosa = formosa.split(' ');
 
     List<int> indexes = [];
-    List<List<String>> sentences = getSentences(mnemonic);
+    List<List<String>> sentences = getSentences(formosa);
 
     for (dynamic eachPhrase in sentences) {
       for (int eachFillIndex in getFillingIndexes(eachPhrase)) {
@@ -368,22 +368,22 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
   /// Get the indexes from a given [relation].
   ///
   /// [relation] is the given relation to find the index from the lists.
-  /// It can be whether a [Record] of (syntactic leads and the mnemonic leads
-  /// or a [Record] of (tuples of syntactic leads and led and mnemonic leads
+  /// It can be whether a [Record] of (syntactic leads and the formosa leads
+  /// or a [Record] of (tuples of syntactic leads and led and formosa leads
   /// and led). For example, ("VERB", word_verb) or
   /// (("VERB", "SUBJECT"), (word_verb, word_subject)).
   ///
   /// Returns the indexes from a given [relation]. If any given words only
-  /// leads and not led, finds the indexes in the [MnemonicTheme.totalWords()]
+  /// leads and not led, finds the indexes in the [FormosaTheme.totalWords()]
   /// list.
   (int, int) getRelationIndexes((dynamic, dynamic) relation) {
     var syntacticRelation = relation.$1;
-    var mnemonicRelation = relation.$2;
+    var formosaRelation = relation.$2;
 
     // If argument is type of Record(String, String)
-    if (syntacticRelation is String && mnemonicRelation is String) {
+    if (syntacticRelation is String && formosaRelation is String) {
       var syntacticLeads_ = syntacticRelation;
-      var mnemoLeads = mnemonicRelation;
+      var mnemoLeads = formosaRelation;
       var wordsList = this[syntacticLeads_].totalWords();
       var mnemoIndex = naturalIndex(syntacticRelation);
       var wordIndex = wordsList.indexOf(mnemoLeads);
@@ -394,10 +394,10 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     else {
       String syntacticLeads_ = syntacticRelation.$1;
       String syntacticLed_ = syntacticRelation.$2;
-      String mnemoLeads = mnemonicRelation.$1;
-      String mnemoLed = mnemonicRelation.$2;
+      String mnemoLeads = formosaRelation.$1;
+      String mnemoLed = formosaRelation.$2;
       int mnemoIndex = naturalIndex(syntacticLed_);
-      MnemonicTheme restrictionDict =
+      FormosaTheme restrictionDict =
           this[syntacticLeads_][syntacticLed_].mapping;
       List<String> wordsList = List<String>.from(restrictionDict[mnemoLeads]);
       var wordIndex = wordsList.indexOf(mnemoLed);
@@ -406,27 +406,27 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     }
   }
 
-  /// Returns list of sentences of given [mnemonic].
-  List<List<String>> getSentences(dynamic mnemonic) {
-    if (mnemonic is String) mnemonic = mnemonic.split(' ');
+  /// Returns list of sentences of given [formosa].
+  List<List<String>> getSentences(dynamic formosa) {
+    if (formosa is String) formosa = formosa.split(' ');
 
     // Prepare variables for generating list of sentences
     var phraseSize_ = wordsPerPhrase();
-    var phraseAmount_ = getPhraseAmount(mnemonic);
+    var phraseAmount_ = getPhraseAmount(formosa);
 
-    // Generate sentence for specific mnemonic
+    // Generate sentence for specific formosa
     List<List<String>> sentences = List.generate(
       phraseAmount_,
       (int eachPhrase) {
         int start = phraseSize_ * eachPhrase;
         int end = phraseSize_ * (eachPhrase + 1);
-        return mnemonic.sublist(start, end);
+        return formosa.sublist(start, end);
       },
     );
     return sentences;
   }
 
-  /// Returns mnemonic sentences in the natural speech order from [dataBits].
+  /// Returns formosa sentences in the natural speech order from [dataBits].
   List getSentencesFromBits(String dataBits) {
     String data;
     int bitsPerPhrase_ = bitsPerPhrase();
@@ -461,10 +461,10 @@ class MnemonicTheme<K extends String, V> extends MapBase<K, dynamic> {
     return result;
   }
 
-  /// Removes [key] and its associated value, if present, from the [MnemonicTheme].
+  /// Removes [key] and its associated value, if present, from the [FormosaTheme].
   ///
   /// Returns the value associated with key before it was removed.
-  /// Returns null if key was not in the [MnemonicTheme].
+  /// Returns null if key was not in the [FormosaTheme].
   @override
   V remove(Object? key) {
     return _internalMap.remove(key);

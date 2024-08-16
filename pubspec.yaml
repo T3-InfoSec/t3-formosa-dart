@@ -1,5 +1,5 @@
 name: t3_formosa
-description: A starting point for Dart libraries or applications.
+description: Improvement upon bip39 to provide a semantically connected words.
 version: 0.1.0-dev
 # repository: https://github.com/my_org/my_repo
 
