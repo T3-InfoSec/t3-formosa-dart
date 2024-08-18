@@ -1,7 +1,7 @@
 import 'package:t3_formosa/formosa.dart';
 
 void main() {
-  Formosa formosa = Formosa(theme: Theme.finances);
+  Formosa formosa = Formosa(formosaTheme: FormosaTheme.finances);
 
   List<int> randomEntropy = [33, 254, 255, 33, 255, 56, 18, 51];
   String resultingFormosa = formosa.toFormosa(randomEntropy);

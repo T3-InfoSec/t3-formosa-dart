@@ -53,8 +53,7 @@ import 'package:t3_formosa/formosa.dart';
 
 void main() {
   // Create a Formosa instance
-  Formosa formosa = Formosa(theme: Theme.finances);
-  Function eq = const ListEquality().equals;
+  Formosa formosa = Formosa(formosaTheme: FormosaTheme.finances);
 
   List<int> randomEntropy = [33, 254, 255, 33, 255, 56, 18, 51];
 

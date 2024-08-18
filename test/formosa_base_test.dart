@@ -2,11 +2,11 @@ import 'package:t3_formosa/formosa.dart';
 import 'package:test/test.dart';
 
 void main() async {
-  final bip39 = Formosa(theme: Theme.bip39);
-  final bip39French = Formosa(theme: Theme.bip39French);
-  final cutePets = Formosa(theme: Theme.cutePets);
-  final medievalFantasy = Formosa(theme: Theme.medievalFantasy);
-  final sciFi = Formosa(theme: Theme.sciFi);
+  final bip39 = Formosa(formosaTheme: FormosaTheme.bip39);
+  final bip39French = Formosa(formosaTheme: FormosaTheme.bip39French);
+  final cutePets = Formosa(formosaTheme: FormosaTheme.cutePets);
+  final medievalFantasy = Formosa(formosaTheme: FormosaTheme.medievalFantasy);
+  final sciFi = Formosa(formosaTheme: FormosaTheme.sciFi);
 
   test('Check does isBip39Theme function returns expected value.', () {
     expect(bip39.isBip39Theme(), true);
