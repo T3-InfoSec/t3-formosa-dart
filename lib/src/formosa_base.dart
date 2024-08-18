@@ -6,22 +6,22 @@ import 'package:crypto/crypto.dart';
 import 'package:unorm_dart/unorm_dart.dart' as unorm;
 
 import 'formosa_theme.dart';
-import 'themes/themes.dart';
+import 'theme_base.dart';
 
 /// A wrap implementation upon bip39 for supporting semantically connected
 /// words implementation upon multiple supported themes.
 class Formosa {
-  static Theme defaultTheme = Theme.bip39;
+  static FormosaTheme defaultTheme = FormosaTheme.bip39;
 
   final String _formosaThemeName;
-  final FormosaTheme _formosaThemeData;
+  final ThemeBase _formosaThemeData;
 
-  /// Creates a [Formosa] instance with data of a specific [theme].
-  Formosa({required Theme theme})
-      : _formosaThemeName = theme.label,
-        _formosaThemeData = FormosaTheme(themeData: theme.themeData);
+  /// Creates a [Formosa] instance with data of a specific [formosaTheme].
+  Formosa({required FormosaTheme formosaTheme})
+      : _formosaThemeName = formosaTheme.label,
+        _formosaThemeData = formosaTheme.themeData;
 
-  FormosaTheme get formosaThemeData => _formosaThemeData;
+  ThemeBase get formosaThemeData => _formosaThemeData;
 
   String get formosaThemeName => _formosaThemeName;
 
@@ -32,11 +32,9 @@ class Formosa {
   String detectTheme(List code) {
     var possibleThemes = findThemes();
     List foundThemes = [];
-    FormosaTheme temp;
     for (String word in code) {
-      for (Theme theme in possibleThemes) {
-        temp = FormosaTheme(themeData: theme.themeData);
-        if (temp.wordList().contains(word)) {
+      for (FormosaTheme theme in possibleThemes) {
+        if (theme.themeData.wordList().contains(word)) {
           foundThemes.add(theme);
         }
       }
@@ -244,8 +242,8 @@ class Formosa {
   }
 
   /// Returns a list of all supported themes.
-  static List<Theme> findThemes() {
-    return Theme.values;
+  static List<FormosaTheme> findThemes() {
+    return FormosaTheme.values;
   }
 
   /// Returns a normalized [bytesText] to normal from [unorm.NFKD] of Unicode.

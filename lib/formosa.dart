@@ -14,4 +14,4 @@
 library;
 
 export 'src/formosa_base.dart';
-export 'src/themes/themes.dart';
+export 'src/formosa_theme.dart';
