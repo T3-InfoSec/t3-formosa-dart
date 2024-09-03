@@ -1,20 +1,30 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:cryptography/cryptography.dart';
+import 'package:crypto/crypto.dart';
+import 'package:cryptography/cryptography.dart' as cryptography;
 import 'package:t3_formosa/formosa.dart';
+import 'package:t3_formosa/src/theme_base.dart';
 
 class Mnemonic {
-  final FormosaTheme? theme;
-  // ignore: non_constant_identifier_names
-  final PBKDF2_ROUNDS = 2048;
+  FormosaTheme? _theme;
+  final int _pbkdf2Rounds = 2048;
+  String? _delimiter;
 
-  const Mnemonic({
-    this.theme = FormosaTheme.bip39,
-  });
+  Mnemonic._internal({FormosaTheme? theme, required String delimiter})
+      : _theme = theme,
+        _delimiter = delimiter;
 
+  factory Mnemonic({FormosaTheme? theme = FormosaTheme.bip39}) {
+    String delimiter = theme?.label == "BIP39_japanese" ? "\u3000" : " ";
+    return Mnemonic._internal(theme: theme, delimiter: delimiter);
+  }
+  // getters
+  int get pbkdf2Rounds => _pbkdf2Rounds;
+  String? get delimiter => _delimiter;
+  //
   String formatMnemonic(dynamic mnemonic) {
-    mnemonic = theme?.themeData.wordList();
+    mnemonic = _theme?.themeData.wordList();
     int n = isBip39Theme ? 4 : 2;
     List<String> password = [
       mnemonic.map((w) {
@@ -22,7 +32,7 @@ class Mnemonic {
           }).join() +
           "\n"
     ];
-    int phraseSize = theme?.themeData.wordsPerPhrase() ?? 0;
+    int phraseSize = _theme?.themeData.wordsPerPhrase() ?? 0;
 
     for (int phraseIndex = 0; phraseIndex < (mnemonic.length ~/ phraseSize); phraseIndex++) {
       password.add(mnemonic.sublist(phraseSize * phraseIndex, phraseSize * (phraseIndex + 1)).join(" ") + "\n");
@@ -55,14 +65,14 @@ class Mnemonic {
     List<int> mnemonicBytes = utf8.encode(mnemonic);
     List<int> passphraseBytes = utf8.encode(passphrase);
 
-    final pbkdf2 = Pbkdf2(
-      macAlgorithm: Hmac.sha512(),
-      iterations: PBKDF2_ROUNDS,
+    final pbkdf2 = cryptography.Pbkdf2(
+      macAlgorithm: cryptography.Hmac.sha512(),
+      iterations: _pbkdf2Rounds,
       bits: 512,
     );
 
     final key = await pbkdf2.deriveKey(
-      secretKey: SecretKey(mnemonicBytes),
+      secretKey: cryptography.SecretKey(mnemonicBytes),
       nonce: passphraseBytes,
     );
     final derivedKeyBytes = await key.extractBytes();
@@ -72,7 +82,7 @@ class Mnemonic {
 
   /// Evaluates whether the theme chosen is from BIP39 or not
   bool get isBip39Theme {
-    return theme?.label.startsWith("bip39") ?? false;
+    return _theme?.label.startsWith("bip39") ?? false;
   }
 
   List<String> normalizeMnemonic(dynamic mnemonic) {
@@ -152,11 +162,104 @@ class Mnemonic {
   }
 
   ///
-  toEntropy(mnemonic) {
-    //TODO: Convert mnemonic to entropy using the current theme
+  Uint8List toEntropy(dynamic words) {
+    // Normalize words to a list of strings
+    if (words is String) {
+      words = words.split(" ");
+    }
+
+    int wordsSize = words.length;
+    _theme ??= detectTheme(words);
+    var wordsDict = _theme?.themeData as ThemeBase;
+
+    int phraseAmount = wordsDict.getPhraseAmount(words);
+    int phraseSize = wordsDict.wordsPerPhrase();
+    int bitsPerChecksumBit = 33;
+
+    if (wordsSize % phraseSize != 0) {
+      throw ArgumentError("The number of words must be a multiple of $phraseSize, but it is $wordsSize");
+    }
+
+    // Construct the concatenation of the original entropy and the checksum
+    int numberPhrases = wordsSize ~/ wordsDict.wordsPerPhrase();
+    int concatLenBits = (numberPhrases * wordsDict.bitsPerPhrase());
+    int checksumLengthBits = (concatLenBits ~/ bitsPerChecksumBit);
+    int entropyLengthBits = concatLenBits - checksumLengthBits;
+
+    final List<int> bitsFillSequence = wordsDict.bitsFillSequence();
+
+    // Map words to binary values
+    List<String> idx = List.generate(wordsDict.getPhraseIndexes(words).length, (i) {
+      int phraseIndex = wordsDict.getPhraseIndexes(words)[i];
+      int bitFill = bitsFillSequence[i % bitsFillSequence.length] * phraseAmount;
+      return phraseIndex.toRadixString(2).padLeft(bitFill, '0');
+    });
+
+    List<bool> concatBits = idx.join().split('').map((bit) => bit == "1").toList();
+
+    // Extract original entropy as bytes
+    Uint8List entropy = Uint8List(entropyLengthBits ~/ 8);
+    print("ENT $entropy ENTBT $entropyLengthBits");
+
+    // For every entropy byte
+    for (int entropyIdx = 0; entropyIdx < entropy.length; entropyIdx++) {
+      // For every entropy bit
+      for (int bitIdx = 0; bitIdx < 8; bitIdx++) {
+        // Avoid side-channel attack by avoiding predictable branching
+        int bitInt = concatBits[(entropyIdx * 8) + bitIdx] ? 1 : 0;
+        entropy[entropyIdx] |= bitInt << (7 - bitIdx);
+      }
+    }
+
+    // Calculate checksum and test it
+    List<int> hashBytes = sha256.convert(entropy).bytes;
+    List<bool> hashBits =
+        hashBytes.expand((byte) => List.generate(8, (bitIdx) => (byte & (1 << (7 - bitIdx))) != 0)).toList();
+
+    bool valid = true;
+    for (int bitIdx = 0; bitIdx < checksumLengthBits; bitIdx++) {
+      valid &= concatBits[entropyLengthBits + bitIdx] == hashBits[bitIdx];
+    }
+
+    if (!valid) {
+      throw ArgumentError("Failed checksum.");
+    }
+
+    return entropy;
   }
+
   //
-  toMnemonic(entropy) {
-    //TODO: Convert entropy back to mnemonic using the new theme
+  String toMnemonic(Uint8List data) {
+    final wordsDictionary = _theme?.themeData;
+    const int leastMultiple = 4;
+    if (data.lengthInBytes % leastMultiple != 0) {
+      throw ArgumentError("Number of bytes should be a multiple of $leastMultiple, but it is ${data.lengthInBytes}.");
+    }
+
+    // Hash digest using SHA-256
+    List<int> hashDigest = sha256.convert(data).bytes;
+
+    // Convert entropy to binary string
+    String entropyBits =
+        data.fold<String>('', (previousValue, byte) => previousValue + byte.toRadixString(2).padLeft(8, '0'));
+
+    // Convert checksum to binary string
+    String checksumBits = hashDigest
+        .fold<String>('', (previousValue, byte) => previousValue + byte.toRadixString(2).padLeft(8, '0'))
+        .substring(0, data.lengthInBytes * 8 ~/ 32);
+
+    // Combine entropy and checksum bits
+    String dataBits = entropyBits + checksumBits;
+
+    // Generate mnemonic sentences from bits
+    List<dynamic>? sentences = wordsDictionary?.getSentencesFromBits(dataBits);
+    if (sentences == null) {
+      throw "Failed to generate mnemonic sentences.";
+    }
+
+    // Join sentences with the delimiter to form the final mnemonic
+    String mnemonic = _delimiter != null ? sentences.join(_delimiter ?? '') : sentences.join(' ');
+
+    return mnemonic;
   }
 }
