@@ -65,14 +65,11 @@ void main() {
 
     test('Normalize BIP39 mnemonic', () {
       final normalizedMnemonic = mnemonicBip39.normalizeMnemonic(bip39Mnemonic);
-      expect(normalizedMnemonic.length, 24); // BIP39 usually has 24 words in a 256-bit entropy
+      expect(normalizedMnemonic.length, 24);
+      // BIP39 usually has 24 words in a 256-bit entropy
     });
 
     test('Convert BIP39 mnemonic to medievalFantasy theme', () {
-      //
-
-      print("LLC $bip39Mnemonic");
-      //
       // Convert to a different theme, for example, medievalFantasy
       final medievalFantasyMnemonic = mnemonicBip39.convertTheme(bip39Mnemonic, FormosaTheme.medievalFantasy);
       expect(medievalFantasyMnemonic.isNotEmpty, true);
@@ -84,4 +81,9 @@ void main() {
       expect(validatedEntropy, entropy); // Ensure the entropy matches the original
     });
   });
+
+  group(
+    'Mnemonic Test - Formosa Themes',
+    () {},
+  );
 }

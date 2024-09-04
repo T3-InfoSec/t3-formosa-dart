@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:cryptography/cryptography.dart' as cryptography;
 import 'package:t3_formosa/formosa.dart';
-import 'package:t3_formosa/src/theme_base.dart';
+
 
 class Mnemonic {
   FormosaTheme? _theme;
@@ -161,79 +161,72 @@ class Mnemonic {
     return FormosaTheme.values.map((theme) => theme.label).toList();
   }
 
-  ///
-  Uint8List toEntropy(dynamic words) {
-    // Normalize words to a list of strings
+  /// The [toEntropy] method returns a entropy using provided one
+  /// or set of [words].
+  List<int> toEntropy(dynamic words) {
+    final themeData = _theme?.themeData ?? FormosaTheme.bip39.themeData;
     if (words is String) {
-      words = words.split(" ");
+      words = words.split(' ');
     }
 
     int wordsSize = words.length;
-    _theme ??= detectTheme(words);
-    var wordsDict = _theme?.themeData as ThemeBase;
+    var wordsDict = themeData;
 
     int phraseAmount = wordsDict.getPhraseAmount(words);
     int phraseSize = wordsDict.wordsPerPhrase();
     int bitsPerChecksumBit = 33;
+    if ((wordsSize % phraseSize) != 0) {
+      // The number of [words] doesn't have good multiple.
+      return [0];
+    }
+    // Look up all the words in the list and construct the
+    // concatenation of the original entropy and the checksum.
 
-    if (wordsSize % phraseSize != 0) {
-      throw ArgumentError("The number of words must be a multiple of $phraseSize, but it is $wordsSize");
+    // Determining strength of the password
+    int numberPhrases = wordsSize ~/ wordsDict.wordsPerPhrase();
+    int concatenationLenBits = numberPhrases * wordsDict.bitsPerPhrase();
+    int checksumLengthBits = concatenationLenBits ~/ bitsPerChecksumBit.round();
+    int entropyLengthBits = concatenationLenBits - checksumLengthBits;
+    var phraseIndexes = wordsDict.getPhraseIndexes(words);
+
+    List bitsFillSequence = [];
+    for (int i = 0; phraseAmount > i; i++) {
+      bitsFillSequence += themeData.bitsFillSequence();
     }
 
-    // Construct the concatenation of the original entropy and the checksum
-    int numberPhrases = wordsSize ~/ wordsDict.wordsPerPhrase();
-    int concatLenBits = (numberPhrases * wordsDict.bitsPerPhrase());
-    int checksumLengthBits = (concatLenBits ~/ bitsPerChecksumBit);
-    int entropyLengthBits = concatLenBits - checksumLengthBits;
+    String concatenationBits = '';
+    for (int i = 0; phraseIndexes.length > i; i++) {
+      concatenationBits += (phraseIndexes[i].toRadixString(2).padLeft(bitsFillSequence[i], '0'));
+    }
+    List<int> entropy_ = List.filled(entropyLengthBits ~/ 8, 0);
+    int bitInt;
 
-    final List<int> bitsFillSequence = wordsDict.bitsFillSequence();
-
-    // Map words to binary values
-    List<String> idx = List.generate(wordsDict.getPhraseIndexes(words).length, (i) {
-      int phraseIndex = wordsDict.getPhraseIndexes(words)[i];
-      int bitFill = bitsFillSequence[i % bitsFillSequence.length] * phraseAmount;
-      return phraseIndex.toRadixString(2).padLeft(bitFill, '0');
-    });
-
-    List<bool> concatBits = idx.join().split('').map((bit) => bit == "1").toList();
-
-    // Extract original entropy as bytes
-    Uint8List entropy = Uint8List(entropyLengthBits ~/ 8);
-    print("ENT $entropy ENTBT $entropyLengthBits");
-
-    // For every entropy byte
-    for (int entropyIdx = 0; entropyIdx < entropy.length; entropyIdx++) {
-      // For every entropy bit
-      for (int bitIdx = 0; bitIdx < 8; bitIdx++) {
-        // Avoid side-channel attack by avoiding predictable branching
-        int bitInt = concatBits[(entropyIdx * 8) + bitIdx] ? 1 : 0;
-        entropy[entropyIdx] |= bitInt << (7 - bitIdx);
+    for (int entropyId = 0; (entropyLengthBits / 8) > entropyId; entropyId += 1) {
+      entropy_[entropyId] = 0;
+      for (int i = 0; 8 > i; i++) {
+        if (concatenationBits[(entropyId * 8) + i] == '1') {
+          bitInt = 1;
+        } else {
+          bitInt = 0;
+        }
+        entropy_[entropyId] |= (bitInt << (8 - 1 - i));
       }
     }
-
-    // Calculate checksum and test it
-    List<int> hashBytes = sha256.convert(entropy).bytes;
-    List<bool> hashBits =
-        hashBytes.expand((byte) => List.generate(8, (bitIdx) => (byte & (1 << (7 - bitIdx))) != 0)).toList();
-
-    bool valid = true;
-    for (int bitIdx = 0; bitIdx < checksumLengthBits; bitIdx++) {
-      valid &= concatBits[entropyLengthBits + bitIdx] == hashBits[bitIdx];
+    List<int> entropy = List.filled(entropyLengthBits ~/ 8, 0);
+    for (int entropyId = 0; (entropyLengthBits / 8) > entropyId; entropyId += 1) {
+      entropy[entropyId] = int.parse(entropy_[entropyId].toString());
     }
-
-    if (!valid) {
-      throw ArgumentError("Failed checksum.");
-    }
-
     return entropy;
   }
 
   //
-  String toMnemonic(Uint8List data) {
+  String toMnemonic(List<int> data) {
+    final uintData = Uint8List.fromList(data);
     final wordsDictionary = _theme?.themeData;
     const int leastMultiple = 4;
-    if (data.lengthInBytes % leastMultiple != 0) {
-      throw ArgumentError("Number of bytes should be a multiple of $leastMultiple, but it is ${data.lengthInBytes}.");
+    if (uintData.lengthInBytes % leastMultiple != 0) {
+      throw ArgumentError(
+          "Number of bytes should be a multiple of $leastMultiple, but it is ${uintData.lengthInBytes}.");
     }
 
     // Hash digest using SHA-256
@@ -246,7 +239,7 @@ class Mnemonic {
     // Convert checksum to binary string
     String checksumBits = hashDigest
         .fold<String>('', (previousValue, byte) => previousValue + byte.toRadixString(2).padLeft(8, '0'))
-        .substring(0, data.lengthInBytes * 8 ~/ 32);
+        .substring(0, uintData.lengthInBytes * 8 ~/ 32);
 
     // Combine entropy and checksum bits
     String dataBits = entropyBits + checksumBits;
