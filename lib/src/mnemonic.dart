@@ -5,7 +5,6 @@ import 'package:crypto/crypto.dart';
 import 'package:cryptography/cryptography.dart' as cryptography;
 import 'package:t3_formosa/formosa.dart';
 
-
 class Mnemonic {
   FormosaTheme? _theme;
   final int _pbkdf2Rounds = 2048;
