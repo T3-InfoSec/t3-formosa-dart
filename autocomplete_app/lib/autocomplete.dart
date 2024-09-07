@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+import 'package:crypto/crypto.dart';
 import 'package:t3_formosa/formosa.dart';
 
 class FormosaAutocomplete {
@@ -10,10 +12,12 @@ class FormosaAutocomplete {
     if (query.isEmpty) {
       return [];
     }
-    if (_theme == FormosaTheme.bip39 || _theme == FormosaTheme.bip39French) {
-      return _bip39(query);
-    } else {
-      return _formosa(query, previousSelection);
+    switch (_theme) {
+      case FormosaTheme.bip39:
+      case FormosaTheme.bip39French:
+        return _bip39(query);
+      default:
+        return [];
     }
   }
 
@@ -24,54 +28,74 @@ class FormosaAutocomplete {
     return wordList.where((word) => word.startsWith(query)).toList();
   }
 
-  List<String> _formosa(String query, String previousSelection) {
-    final List<String> suggestions = [];
-
-    String currentCategory = _getCurrentCategory(previousSelection);
-
-    List<String> wordList = _getWordsFromCategory(currentCategory, query);
-
-    suggestions.addAll(wordList);
-    if (previousSelection.isNotEmpty) {
-      suggestions.addAll(_getMappedWords(previousSelection, currentCategory));
+  List<int> toEntropyValidateChecksum(dynamic words) {
+    final themeData = _theme.themeData;
+    if (words is String) {
+      words = words.split(' ');
     }
 
-    return suggestions;
-  }
+    int wordsSize = words.length;
+    var wordsDict = themeData;
 
-  String _getCurrentCategory(String previousSelection) {
-    // If no previous selection, start with the first category in NATURAL_ORDER
-    if (previousSelection.isEmpty) {
-      return _theme.themeData['NATURAL_ORDER'].first;
+    int phraseAmount = wordsDict.getPhraseAmount(words);
+    int phraseSize = wordsDict.wordsPerPhrase();
+    int bitsPerChecksumBit = 33;
+    if ((wordsSize % phraseSize) != 0) {
+      // The number of [words] doesn't have a good multiple.
+      return [0];
+    }
+    // Look up all the words in the list and construct the
+    // concatenation of the original entropy and the checksum.
+
+    // Determining strength of the password
+    int numberPhrases = wordsSize ~/ wordsDict.wordsPerPhrase();
+    int concatenationLenBits = numberPhrases * wordsDict.bitsPerPhrase();
+    int checksumLengthBits = concatenationLenBits ~/ bitsPerChecksumBit.round();
+    int entropyLengthBits = concatenationLenBits - checksumLengthBits;
+    var phraseIndexes = wordsDict.getPhraseIndexes(words);
+
+    List bitsFillSequence = [];
+    for (int i = 0; phraseAmount > i; i++) {
+      bitsFillSequence += themeData.bitsFillSequence();
     }
 
-    // Otherwise, find the next category to suggest from
-    String previousCategory = _getCategoryFromSelection(previousSelection);
-    int currentIndex = _theme.themeData['NATURAL_ORDER'].indexOf(previousCategory);
-    return _theme.themeData['NATURAL_ORDER'][currentIndex + 1];
-  }
+    String concatenationBits = '';
+    for (int i = 0; phraseIndexes.length > i; i++) {
+      concatenationBits += (phraseIndexes[i].toRadixString(2).padLeft(bitsFillSequence[i], '0'));
+    }
 
-// Helper function to get words from the current category
-  List<String> _getWordsFromCategory(String category, String query) {
-    List<String> wordList = _theme.themeData[category]['TOTAL_LIST'];
-    return wordList.where((word) => word.startsWith(query)).toList();
-  }
-
-// Helper function to get the category of the previous selection
-  String _getCategoryFromSelection(String selection) {
-    for (String category in _theme.themeData['NATURAL_ORDER']) {
-      if (_theme.themeData[category]['TOTAL_LIST'].contains(selection)) {
-        return category;
+    // Extract entropy
+    List<int> entropyBytes = List.filled(entropyLengthBits ~/ 8, 0);
+    for (int entropyIdx = 0; entropyIdx < entropyBytes.length; entropyIdx++) {
+      for (int bitIdx = 0; bitIdx < 8; bitIdx++) {
+        int bitInt = concatenationBits[(entropyIdx * 8) + bitIdx] == '1' ? 1 : 0;
+        entropyBytes[entropyIdx] |= (bitInt << (8 - 1 - bitIdx));
       }
     }
-    return '';
-  }
 
-  List<String> _getMappedWords(String previousSelection, String currentCategory) {
-    List<String> mappedWords = [];
-    if (_theme.themeData[currentCategory]?.containsKey('MAPPING') ?? false) {
-      mappedWords.addAll(_theme.themeData[currentCategory]['MAPPING'][previousSelection] ?? []);
+    // Hash the entropy using SHA-256
+    var entropyUint8List = Uint8List.fromList(entropyBytes);
+    var hashBytes = sha256.convert(entropyUint8List).bytes;
+
+    // Convert the hash into bits
+    String hashBits = '';
+    for (int checksumByte in hashBytes) {
+      hashBits += checksumByte.toRadixString(2).padLeft(8, '0');
     }
-    return mappedWords;
+
+    // Validate the checksum
+    bool valid = true;
+    for (int bitIdx = 0; bitIdx < checksumLengthBits; bitIdx++) {
+      if (concatenationBits[entropyLengthBits + bitIdx] != hashBits[bitIdx]) {
+        valid = false;
+        break;
+      }
+    }
+
+    if (!valid) {
+      throw Exception("Failed checksum.");
+    }
+
+    return entropyBytes;
   }
 }

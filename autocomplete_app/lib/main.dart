@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       themeMode: ThemeMode.dark,
-      home: const AutocompletePage(),
+      home: AutocompletePage(),
     );
   }
 }
