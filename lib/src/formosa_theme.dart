@@ -34,10 +34,16 @@ enum FormosaTheme {
     label: 'sci_fi',
     theme: ThemeBase(themeData: sciFiData),
   ),
+  medievalFantasyLight(
+    label: 'medieval_fantasy_light',
+    theme: ThemeBase(themeData: medievalFantasyLightData),
+  ),
   tourism(
     label: 'tourism',
     theme: ThemeBase(themeData: tourismData),
   );
+
+
 
   final String _label;
   final ThemeBase _themeData;

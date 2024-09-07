@@ -1,6 +1,7 @@
 import 'package:autocomplete/autocomplete.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:t3_formosa/formosa.dart';
 
 class AutocompletePage extends StatefulWidget {
   const AutocompletePage({super.key});
@@ -16,58 +17,13 @@ class _AutocompletePageState extends State<AutocompletePage> {
   List<String> _suggestions = [];
   int selectedIndex = -1;
   List<String> _selectedWords = [];
-  //
+
   final TextEditingController _controller = TextEditingController();
   FocusNode _textfieldFocusNode = FocusNode();
   FocusNode _mainFocus = FocusNode();
+  FormosaTheme selectedTheme = FormosaTheme.bip39;
 
-  //
-
-  void _updateSuggestionPosition() {
-    if (_controller.selection.baseOffset == -1) return;
-
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
-    final caretPosition = _controller.selection.baseOffset;
-    final textStyle = DefaultTextStyle.of(context).style.merge(TextStyle(fontSize: 16));
-    final TextPainter textPainter = TextPainter(
-      text: TextSpan(text: _controller.text.substring(0, caretPosition), style: textStyle),
-      maxLines: 1,
-      textDirection: TextDirection.ltr,
-    )..layout();
-
-    final caretOffset = textPainter.size.width;
-    final caretHeight = textPainter.height;
-    final boxOffset = renderBox.localToGlobal(Offset.zero);
-    setState(() {
-      _suggestionOffset = Offset(caretOffset + boxOffset.dx, boxOffset.dy - caretHeight);
-    });
-  }
-
-// for
-  final FormosaAutocomplete formosaAutocomplete = FormosaAutocomplete();
-
-  _validateWordToEntropy(List<String> words) {
-    print('words ${words.length} $words');
-    if (_controller.text.isEmpty) {
-      setState(() {
-        isErrorMessageVisible = false;
-      });
-    }
-    if (words.length >= 12) {
-      try {
-        final isValid = formosaAutocomplete.toEntropyValidateChecksum(words);
-        print("ENT ${isValid}");
-        setState(() {
-          isErrorMessageVisible = isValid.isEmpty;
-        });
-      } catch (e, t) {
-        setState(() {
-          isErrorMessageVisible = true;
-        });
-        print("AN ERR OCCURED $e $t");
-      }
-    }
-  }
+  FormosaAutocomplete formosaAutocomplete = FormosaAutocomplete();
 
   @override
   void initState() {
@@ -86,6 +42,8 @@ class _AutocompletePageState extends State<AutocompletePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FocusScope.of(context).requestFocus(_textfieldFocusNode);
     });
+    formosaAutocomplete = FormosaAutocomplete(theme: selectedTheme);
+
   }
 
   @override
@@ -93,6 +51,31 @@ class _AutocompletePageState extends State<AutocompletePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Auto complete formosa'),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50.0),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButton<FormosaTheme>(
+              value: selectedTheme,
+              onChanged: (FormosaTheme? newValue) {
+                setState(() {
+                  selectedTheme = newValue ?? selectedTheme;
+                  _controller.clear();
+                  _selectedWords.clear();
+                  _suggestions.clear();
+                  formosaAutocomplete = FormosaAutocomplete(theme: selectedTheme);
+                });
+              },
+              items: <FormosaTheme>[FormosaTheme.bip39, FormosaTheme.bip39French]
+                  .map<DropdownMenuItem<FormosaTheme>>((FormosaTheme value) {
+                return DropdownMenuItem<FormosaTheme>(
+                  value: value,
+                  child: Text(value.name),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
       ),
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
@@ -180,6 +163,49 @@ class _AutocompletePageState extends State<AutocompletePage> {
     );
   }
 
+  void _updateSuggestionPosition() {
+    if (_controller.selection.baseOffset == -1) return;
+
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final caretPosition = _controller.selection.baseOffset;
+    final textStyle = DefaultTextStyle.of(context).style.merge(TextStyle(fontSize: 16));
+    final TextPainter textPainter = TextPainter(
+      text: TextSpan(text: _controller.text.substring(0, caretPosition), style: textStyle),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    final caretOffset = textPainter.size.width;
+    final caretHeight = textPainter.height;
+    final boxOffset = renderBox.localToGlobal(Offset.zero);
+    setState(() {
+      _suggestionOffset = Offset(caretOffset + boxOffset.dx, boxOffset.dy - caretHeight);
+    });
+  }
+
+  _validateWordToEntropy(List<String> words) {
+    print('words ${words.length} $words');
+    if (_controller.text.isEmpty) {
+      setState(() {
+        isErrorMessageVisible = false;
+      });
+    }
+    if (words.length >= 12) {
+      try {
+        final isValid = formosaAutocomplete.toEntropyValidateChecksum(words);
+        print("ENT ${isValid}");
+        setState(() {
+          isErrorMessageVisible = isValid.isEmpty;
+        });
+      } catch (e, t) {
+        setState(() {
+          isErrorMessageVisible = true;
+        });
+        print("AN ERR OCCURED $e $t");
+      }
+    }
+  }
+
   void _updateSuggestions(String input) {
     _validateWordToEntropy(_selectedWords);
 
@@ -187,7 +213,6 @@ class _AutocompletePageState extends State<AutocompletePage> {
     if (lastWord.isEmpty) {
       setState(() {
         _suggestions.clear();
-
         selectedIndex = -1;
       });
       return;
@@ -211,12 +236,10 @@ class _AutocompletePageState extends State<AutocompletePage> {
       _controller.text = '${words.join(' ')} ';
       _controller.selection = TextSelection.fromPosition(TextPosition(offset: _controller.text.length));
       _suggestions.clear();
-
       selectedIndex = -1;
       _validateWordToEntropy(words);
     });
 
-    // Keep the focus on the TextField to allow typing the next word
     _textfieldFocusNode.requestFocus();
   }
 }
@@ -263,17 +286,5 @@ class KeyType {
 
   static isDown(KeyEvent event) {
     return event.logicalKey == LogicalKeyboardKey.arrowDown;
-  }
-
-  static isBack(KeyEvent event) {
-    return event.logicalKey == LogicalKeyboardKey.escape ||
-        event.logicalKey == LogicalKeyboardKey.goBack ||
-        event.logicalKey == LogicalKeyboardKey.abort;
-  }
-
-  static isTrt(KeyEvent event) {
-    return event.logicalKey == LogicalKeyboardKey.escape ||
-        event.logicalKey == LogicalKeyboardKey.keyZ ||
-        event.logicalKey == LogicalKeyboardKey.abort;
   }
 }

@@ -15,6 +15,7 @@ class FormosaAutocomplete {
     switch (_theme) {
       case FormosaTheme.bip39:
       case FormosaTheme.bip39French:
+        // case FormosaTheme.medievalFantasyLight:
         return _bip39(query);
       default:
         return [];

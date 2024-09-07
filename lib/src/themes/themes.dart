@@ -5,5 +5,6 @@ export 'cute_pets.dart';
 export 'farm_animals.dart';
 export 'finances.dart';
 export 'medieval_fantasy.dart';
+export 'medieval_fantasy_light.dart';
 export 'sci_fi.dart';
 export 'tourism.dart';
