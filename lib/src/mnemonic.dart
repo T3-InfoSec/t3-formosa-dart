@@ -15,7 +15,7 @@ class Mnemonic {
         _delimiter = delimiter;
 
   factory Mnemonic({FormosaTheme? theme = FormosaTheme.bip39}) {
-    String delimiter = theme?.label == "BIP39_japanese" ? "\u3000" : " ";
+    String delimiter = theme?.name == "BIP39_japanese" ? "\u3000" : " ";
     return Mnemonic._internal(theme: theme, delimiter: delimiter);
   }
   // getters
@@ -23,7 +23,7 @@ class Mnemonic {
   String? get delimiter => _delimiter;
   //
   String formatMnemonic(dynamic mnemonic) {
-    mnemonic = _theme?.themeData.wordList();
+    mnemonic = _theme?.data.wordList();
     int n = isBip39Theme ? 4 : 2;
     List<String> password = [
       mnemonic.map((w) {
@@ -31,7 +31,7 @@ class Mnemonic {
           }).join() +
           "\n"
     ];
-    int phraseSize = _theme?.themeData.wordsPerPhrase() ?? 0;
+    int phraseSize = _theme?.data.wordsPerPhrase() ?? 0;
 
     for (int phraseIndex = 0; phraseIndex < (mnemonic.length ~/ phraseSize); phraseIndex++) {
       password.add(mnemonic.sublist(phraseSize * phraseIndex, phraseSize * (phraseIndex + 1)).join(" ") + "\n");
@@ -81,7 +81,7 @@ class Mnemonic {
 
   /// Evaluates whether the theme chosen is from BIP39 or not
   bool get isBip39Theme {
-    return _theme?.label.startsWith("bip39") ?? false;
+    return _theme?.name.startsWith("bip39") ?? false;
   }
 
   List<String> normalizeMnemonic(dynamic mnemonic) {
@@ -117,7 +117,7 @@ class Mnemonic {
     Set<FormosaTheme> possibleThemes = FormosaTheme.values.toSet();
 
     for (String word in code.split(" ")) {
-      possibleThemes = possibleThemes.where((theme) => theme.themeData.wordList().contains(word)).toSet();
+      possibleThemes = possibleThemes.where((theme) => theme.data.wordList().contains(word)).toSet();
 
       if (possibleThemes.isEmpty) {
         throw "Theme unrecognized for '$word'";
@@ -127,14 +127,14 @@ class Mnemonic {
     if (possibleThemes.length == 1) {
       return possibleThemes.first;
     } else {
-      throw "Theme ambiguous between ${possibleThemes.map((theme) => theme.label).join(', ')}";
+      throw "Theme ambiguous between ${possibleThemes.map((theme) => theme.name).join(', ')}";
     }
   }
 
   ///
   String convertTheme(dynamic mnemonic, FormosaTheme newTheme, {FormosaTheme? currentTheme}) {
-    if (!findThemes().contains(newTheme.label)) {
-      throw "Theme ${newTheme.label} not found";
+    if (!findThemes().contains(newTheme.name)) {
+      throw "Theme ${newTheme.name} not found";
     }
 
     if (mnemonic is String) {
@@ -157,13 +157,13 @@ class Mnemonic {
 
   ///
   List<String> findThemes() {
-    return FormosaTheme.values.map((theme) => theme.label).toList();
+    return FormosaTheme.values.map((theme) => theme.name).toList();
   }
 
   /// The [toEntropy] method returns a entropy using provided one
   /// or set of [words].
   List<int> toEntropy(dynamic words) {
-    final themeData = _theme?.themeData ?? FormosaTheme.bip39.themeData;
+    final themeData = _theme?.data ?? FormosaTheme.bip39.data;
     if (words is String) {
       words = words.split(' ');
     }
@@ -221,7 +221,7 @@ class Mnemonic {
   //
   String toMnemonic(List<int> data) {
     final uintData = Uint8List.fromList(data);
-    final wordsDictionary = _theme?.themeData;
+    final wordsDictionary = _theme?.data;
     const int leastMultiple = 4;
     if (uintData.lengthInBytes % leastMultiple != 0) {
       throw ArgumentError(

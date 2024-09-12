@@ -11,19 +11,12 @@ import 'theme_base.dart';
 /// A wrap implementation upon bip39 for supporting semantically connected
 /// words implementation upon multiple supported themes.
 class Formosa {
-  static FormosaTheme defaultTheme = FormosaTheme.bip39;
+  FormosaTheme _formosaTheme;
 
-  final String _formosaThemeName;
-  final ThemeBase _formosaThemeData;
+  /// Creates a [Formosa] instance with specified [formosaTheme].
+  Formosa({required FormosaTheme formosaTheme}) : _formosaTheme = formosaTheme;
 
-  /// Creates a [Formosa] instance with data of a specific [formosaTheme].
-  Formosa({required FormosaTheme formosaTheme})
-      : _formosaThemeName = formosaTheme.label,
-        _formosaThemeData = formosaTheme.themeData;
-
-  ThemeBase get formosaThemeData => _formosaThemeData;
-
-  String get formosaThemeName => _formosaThemeName;
+  FormosaTheme get formosaTheme => _formosaTheme;
 
   /// Returns in which themes list of words defined with [code] can be found.
   ///
@@ -34,7 +27,7 @@ class Formosa {
     List foundThemes = [];
     for (String word in code) {
       for (FormosaTheme theme in possibleThemes) {
-        if (theme.themeData.wordList().contains(word)) {
+        if (theme.data.wordList().contains(word)) {
           foundThemes.add(theme);
         }
       }
@@ -107,10 +100,11 @@ class Formosa {
     return toFormosa(rand.nextInt(strength_.toInt()));
   }
 
-  /// The [isBip39Theme] checks is selected theme equal to BIP39.
-  /// Returns 'true' if default theme is BIP39, else returns 'false'.
+  /// Check if the current used (selected) theme equal to BIP39.
+  ///
+  /// Returns 'true' if current used theme is BIP39, else returns 'false'.
   bool isBip39Theme() {
-    return formosaThemeName == 'bip39';
+    return formosaTheme == FormosaTheme.bip39;
   }
 
   /// The [toEntropy] method returns a entropy using provided one
@@ -121,7 +115,7 @@ class Formosa {
     }
 
     int wordsSize = words.length;
-    var wordsDict = _formosaThemeData;
+    var wordsDict = formosaTheme.data;
     int phraseAmount = wordsDict.getPhraseAmount(words);
     int phraseSize = wordsDict.wordsPerPhrase();
     int bitsPerChecksumBit = 33;
@@ -141,7 +135,7 @@ class Formosa {
 
     List bitsFillSequence = [];
     for (int i = 0; phraseAmount > i; i++) {
-      bitsFillSequence += _formosaThemeData.bitsFillSequence();
+      bitsFillSequence += formosaTheme.data.bitsFillSequence();
     }
 
     String concatenationBits = '';
@@ -235,7 +229,7 @@ class Formosa {
 
     String dataBits = entropyBits + checksumBits;
 
-    List sentences = _formosaThemeData.getSentencesFromBits(dataBits);
+    List sentences = formosaTheme.data.getSentencesFromBits(dataBits);
 
     String formosa = sentences.join(' ');
     return formosa;

@@ -17,15 +17,15 @@ void main() async {
   });
 
   test('Check does storeJsonValues method works as expected', () {
-    expect(bip39_.formosaThemeData[fillSeqKey], ['WORDS']);
-    expect(bip39_.formosaThemeData[naturalSeqKey], ['WORDS']);
+    expect(bip39_.formosaTheme.data[fillSeqKey], ['WORDS']);
+    expect(bip39_.formosaTheme.data[naturalSeqKey], ['WORDS']);
   });
 
   test(
       'Check does fillingOrder function returns correct value for bip39_ and mediaval fantasy themes.',
       () {
     List<String> result = ['WORDS'];
-    expect(bip39_.formosaThemeData.fillingOrder, result);
+    expect(bip39_.formosaTheme.data.fillingOrder, result);
     List<String> result2 = [
       'VERB',
       'SUBJECT',
@@ -34,104 +34,104 @@ void main() async {
       'WILDCARD',
       'PLACE'
     ];
-    expect(medievalFantasy.formosaThemeData.fillingOrder, result2);
+    expect(medievalFantasy.formosaTheme.data.fillingOrder, result2);
   });
 
   test(
       'Check does total_words function returns correct value for cutepets theme.',
       () {
-    expect((bip39_.formosaThemeData['WORDS'])[totalList],
-        bip39_.formosaThemeData.totalWords());
+    expect((bip39_.formosaTheme.data['WORDS'])[totalList],
+        bip39_.formosaTheme.data.totalWords());
   });
 
   test(
       'Check does bitLength function returns correct value for cutepets theme.',
       () {
-    var words = bip39_.formosaThemeData['WORDS'];
+    var words = bip39_.formosaTheme.data['WORDS'];
     expect(words.bitLength(), 11);
   });
 
   test('Check does getLedByMapping function returns correct mapping.', () {
     expect(
-        medievalFantasy.formosaThemeData
+        medievalFantasy.formosaTheme.data
             .getLedByMapping('SUBJECT')['advise_about'],
         contains('acolyte'));
-    expect(cutePets.formosaThemeData.getLedByMapping('SUBJECT')['adopt'],
+    expect(cutePets.formosaTheme.data.getLedByMapping('SUBJECT')['adopt'],
         contains('abyssinian_cat'));
   });
 
   test('Check does bitsPerPhrase function returns correct sum of bit lengths.',
       () {
-    expect(bip39_.formosaThemeData.bitsPerPhrase(), 11);
-    expect(medievalFantasy.formosaThemeData.bitsPerPhrase(), 33);
+    expect(bip39_.formosaTheme.data.bitsPerPhrase(), 11);
+    expect(medievalFantasy.formosaTheme.data.bitsPerPhrase(), 33);
   });
 
   test('Check does wordsPerPhrase function returns correct number of phrases.',
       () {
-    expect(bip39_.formosaThemeData.wordsPerPhrase(), 1);
-    expect(medievalFantasy.formosaThemeData.wordsPerPhrase(), 6);
+    expect(bip39_.formosaTheme.data.wordsPerPhrase(), 1);
+    expect(medievalFantasy.formosaTheme.data.wordsPerPhrase(), 6);
   });
 
   test('Check does wordList function returns correct words.', () {
-    expect(bip39_.formosaThemeData.wordList(), contains('alpha'));
-    expect(bip39_.formosaThemeData.wordList(), contains('abuse'));
+    expect(bip39_.formosaTheme.data.wordList(), contains('alpha'));
+    expect(bip39_.formosaTheme.data.wordList(), contains('abuse'));
   });
 
   test('Check does restrictionSequence function returns correct words.', () {
     expect(
-        medievalFantasy.formosaThemeData.restrictionSequence()[0].$1, 'VERB');
-    expect(medievalFantasy.formosaThemeData.restrictionSequence()[2].$2,
+        medievalFantasy.formosaTheme.data.restrictionSequence()[0].$1, 'VERB');
+    expect(medievalFantasy.formosaTheme.data.restrictionSequence()[2].$2,
         'WILDCARD');
   });
 
   test('Check does naturalIndex function returns correct words.', () {
-    expect(medievalFantasy.formosaThemeData.naturalIndex('VERB'), 1);
-    expect(medievalFantasy.formosaThemeData.naturalIndex('SUBJECT'), 0);
-    expect(medievalFantasy.formosaThemeData.naturalIndex('WILDCARD'), 4);
-    expect(bip39_.formosaThemeData.naturalIndex('WORDS'), 0);
+    expect(medievalFantasy.formosaTheme.data.naturalIndex('VERB'), 1);
+    expect(medievalFantasy.formosaTheme.data.naturalIndex('SUBJECT'), 0);
+    expect(medievalFantasy.formosaTheme.data.naturalIndex('WILDCARD'), 4);
+    expect(bip39_.formosaTheme.data.naturalIndex('WORDS'), 0);
   });
 
   test('Check does naturalMap function returns correct words.', () {
-    expect(medievalFantasy.formosaThemeData.naturalMap, [1, 0, 3, 2, 4, 5]);
+    expect(medievalFantasy.formosaTheme.data.naturalMap, [1, 0, 3, 2, 4, 5]);
   });
 
   test('Check does fillingMap function returns correct words.', () {
-    expect(medievalFantasy.formosaThemeData.fillingMap(), [1, 0, 3, 2, 4, 5]);
-    expect(cutePets.formosaThemeData.fillingMap(), [2, 1, 0, 4, 3, 5]);
+    expect(medievalFantasy.formosaTheme.data.fillingMap(), [1, 0, 3, 2, 4, 5]);
+    expect(cutePets.formosaTheme.data.fillingMap(), [2, 1, 0, 4, 3, 5]);
   });
 
   test('Check does restrictionIndexes function returns correct words.', () {
-    expect(medievalFantasy.formosaThemeData.restrictionIndexes(),
+    expect(medievalFantasy.formosaTheme.data.restrictionIndexes(),
         [(1, 0), (0, 3), (0, 4), (3, 2), (4, 5)]);
-    expect(cutePets.formosaThemeData.restrictionIndexes(),
+    expect(cutePets.formosaTheme.data.restrictionIndexes(),
         [(2, 1), (1, 0), (1, 4), (4, 3), (4, 5)]);
   });
 
   test('Check does primeSyntacticLeads function returns correct words.', () {
-    expect(medievalFantasy.formosaThemeData.primeSyntacticLeads(), ['VERB']);
-    expect(cutePets.formosaThemeData.primeSyntacticLeads(), ['VERB']);
-    expect(bip39_.formosaThemeData.primeSyntacticLeads(), ['WORDS']);
+    expect(medievalFantasy.formosaTheme.data.primeSyntacticLeads(), ['VERB']);
+    expect(cutePets.formosaTheme.data.primeSyntacticLeads(), ['VERB']);
+    expect(bip39_.formosaTheme.data.primeSyntacticLeads(), ['WORDS']);
   });
 
   test('Check does restrictionPairs function returns correct words.', () {
     expect(
-        medievalFantasy.formosaThemeData
+        medievalFantasy.formosaTheme.data
             .restrictionPairs(['vi', 'bo', 'ni', 'bo', 'as', 'mo']),
         [('bo', 'vi'), ('vi', 'bo'), ('vi', 'as'), ('bo', 'ni'), ('as', 'mo')]);
-    expect(bip39_.formosaThemeData.restrictionPairs(['vi']), []);
+    expect(bip39_.formosaTheme.data.restrictionPairs(['vi']), []);
   });
 
   group('getRelationIndexes', () {
     test('Test getRelationIndexes with strings.', () {
       expect(
-          medievalFantasy.formosaThemeData
+          medievalFantasy.formosaTheme.data
               .getRelationIndexes(('VERB', 'borrow')),
           (1, 4));
     });
 
     test('Test getRelationIndexes with tuples.', () {
       expect(
-          medievalFantasy.formosaThemeData
+          medievalFantasy.formosaTheme.data
               .getRelationIndexes((('VERB', 'SUBJECT'), ('borrow', 'wizard'))),
           (0, 63));
     });
@@ -139,29 +139,29 @@ void main() async {
 
   test('Test getNaturalIndexes with set of sentences.', () {
     expect(
-        medievalFantasy.formosaThemeData.getNaturalIndexes(
+        medievalFantasy.formosaTheme.data.getNaturalIndexes(
             ['fisherman', 'ask_for', 'bronze', 'chains', 'spy', 'roof']),
         [23, 1, 4, 10, 58, 24]);
     expect(
-        medievalFantasy.formosaThemeData.getNaturalIndexes(
+        medievalFantasy.formosaTheme.data.getNaturalIndexes(
             ['rider', 'reach', 'rusty', 'gun', 'guard', 'cave']),
         [48, 21, 20, 26, 22, 6]);
   });
 
   test('Test getFillingIndexes with set of sentences.', () {
     expect(
-        medievalFantasy.formosaThemeData.getFillingIndexes(
+        medievalFantasy.formosaTheme.data.getFillingIndexes(
             ['fisherman', 'ask_for', 'bronze', 'chains', 'spy', 'roof']),
         [1, 23, 10, 4, 58, 24]);
     expect(
-        medievalFantasy.formosaThemeData.getFillingIndexes(
+        medievalFantasy.formosaTheme.data.getFillingIndexes(
             ['rider', 'reach', 'rusty', 'gun', 'guard', 'cave']),
         [21, 48, 26, 20, 22, 6]);
   });
 
   test('Test getPhraseAmount with set of words.', () {
     expect(
-        medievalFantasy.formosaThemeData.getPhraseAmount([
+        medievalFantasy.formosaTheme.data.getPhraseAmount([
           'viscount',
           'borrow',
           'nickel',
@@ -195,7 +195,7 @@ void main() async {
         ]),
         5);
     expect(
-        medievalFantasy.formosaThemeData.getPhraseAmount([
+        medievalFantasy.formosaTheme.data.getPhraseAmount([
           'vi',
           'bo',
           'ni',
@@ -239,12 +239,12 @@ void main() async {
       ['wi', 'bo', 'wi', 'fl', 'tu', 'or']
     ];
     expect(
-        medievalFantasy.formosaThemeData.getSentences(
+        medievalFantasy.formosaTheme.data.getSentences(
           'vi bo ni bo as mo fi as br ch sp ro ri re ru gu gu ca ve hi st mi in ci wi bo wi fl tu or',
         ),
         result);
     expect(
-        medievalFantasy.formosaThemeData.getSentences([
+        medievalFantasy.formosaTheme.data.getSentences([
           'vi',
           'bo',
           'ni',
@@ -313,7 +313,7 @@ void main() async {
       18
     ];
     expect(
-        medievalFantasy.formosaThemeData.getPhraseIndexes([
+        medievalFantasy.formosaTheme.data.getPhraseIndexes([
           'viscount',
           'borrow',
           'nickel',
@@ -381,40 +381,40 @@ void main() async {
       18
     ];
     expect(
-        medievalFantasy.formosaThemeData.getPhraseIndexes(
+        medievalFantasy.formosaTheme.data.getPhraseIndexes(
             'viscount borrow nickel boots astronomer monastery fisherman ask_for bronze chains spy roof rider reach rusty gun guard cave ventriloquist hide stimulating milk inventor circus wizard borrow wild flask tutor oracle'),
         result);
   });
 
   test('Test getLedByIndex with various strings.', () {
-    expect(medievalFantasy.formosaThemeData.getLedByIndex('SUBJECT'), 1);
-    expect(medievalFantasy.formosaThemeData.getLedByIndex('WILDCARD'), 0);
-    expect(medievalFantasy.formosaThemeData.getLedByIndex('ADJECTIVE'), 3);
+    expect(medievalFantasy.formosaTheme.data.getLedByIndex('SUBJECT'), 1);
+    expect(medievalFantasy.formosaTheme.data.getLedByIndex('WILDCARD'), 0);
+    expect(medievalFantasy.formosaTheme.data.getLedByIndex('ADJECTIVE'), 3);
   });
 
   test('Test getLeadList with various strings.', () {
     expect(
-        medievalFantasy.formosaThemeData
+        medievalFantasy.formosaTheme.data
             .getLeadList('SUBJECT', ['', 'borrow', '', '', '', '']),
         contains('actor'));
-    expect(bip39_.formosaThemeData.getLeadList('WORDS', ['']),
+    expect(bip39_.formosaTheme.data.getLeadList('WORDS', ['']),
         containsAll(['speed', 'thing']));
   });
 
   test('Test assembleSentence with various data bits.', () {
     expect(
-        medievalFantasy.formosaThemeData
+        medievalFantasy.formosaTheme.data
             .assembleSentence('000010110001110101010100011011001'),
         ['gardener', 'ask_for', 'rusty', 'stylus', 'brewer', 'square']);
     expect(
-        medievalFantasy.formosaThemeData
+        medievalFantasy.formosaTheme.data
             .assembleSentence('110110001101110000001110100111011'),
         ['blacksmith', 'trust', 'bronze', 'sword', 'mercenary', 'temple']);
   });
 
   test('Test assembleSentence with various data bits.', () {
     expect(
-        medievalFantasy.formosaThemeData.getSentencesFromBits(
+        medievalFantasy.formosaTheme.data.getSentencesFromBits(
             '010000000001001110111010100101010111000100000110100001001000010101'),
         [
           'acolyte',
@@ -431,7 +431,7 @@ void main() async {
           'portal'
         ]);
     expect(
-        medievalFantasy.formosaThemeData.getSentencesFromBits(
+        medievalFantasy.formosaTheme.data.getSentencesFromBits(
             '000110011101110011100111001110110000111111001000011000100101001110'),
         [
           'dancer',
@@ -448,11 +448,11 @@ void main() async {
           'library'
         ]);
     expect(
-        bip39_.formosaThemeData.getSentencesFromBits(
+        bip39_.formosaTheme.data.getSentencesFromBits(
             '000111100111011110010110110111000110001111011001011110010101100101'),
         ['bunker', 'royal', 'require', 'sibling', 'nurse', 'protect']);
     expect(
-        cutePets.formosaThemeData
+        cutePets.formosaTheme.data
             .getSentencesFromBits('101001100010001101110100101100100'),
         ['aware', 'service_dog', 'rescue', 'bulky', 'trainer', 'box']);
   });
