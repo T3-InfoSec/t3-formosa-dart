@@ -6,7 +6,6 @@ import 'package:crypto/crypto.dart';
 import 'package:unorm_dart/unorm_dart.dart' as unorm;
 
 import 'formosa_theme.dart';
-import 'theme_base.dart';
 
 /// A wrap implementation upon bip39 for supporting semantically connected
 /// words implementation upon multiple supported themes.
