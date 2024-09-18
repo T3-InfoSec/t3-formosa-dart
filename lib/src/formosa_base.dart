@@ -37,7 +37,7 @@ class Formosa {
     if (foundThemes.isEmpty) {
       return "Didn't found appropriate theme.";
     }
-    return foundThemes[0].label;
+    return foundThemes[0].name;
   }
 
   // TODO: Complete the implementation.
