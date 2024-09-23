@@ -127,7 +127,8 @@ class _LabelGridState extends State<LabelGrid> {
     int wordIndex = 0;
 
     // Shuffle the wordSource to get random words
-    List<String> shuffledWordSource = List.from(widget.wordSource)..shuffle();
+    List<String> shuffledWordSource = List.from(widget.wordSource);
+    
 
     for (int row = 0; row < rowCount; row++) {
       for (int col = 0; col < colCount; col++) {
