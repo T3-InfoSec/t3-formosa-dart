@@ -7,3 +7,5 @@ export 'finances.dart';
 export 'medieval_fantasy.dart';
 export 'sci_fi.dart';
 export 'tourism.dart';
+export 'medieval_fantasy_light.dart';
+export 'formosa_global.dart';

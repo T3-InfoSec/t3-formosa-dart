@@ -1,3 +1,4 @@
+
 import 'themes/themes.dart';
 import 'theme_base.dart';
 
@@ -34,10 +35,19 @@ enum FormosaTheme {
     name: 'sci_fi',
     theme: ThemeBase(themeData: sciFiData),
   ),
+  medievalFantasyLight(
+    name: 'medievalFantasyLight',
+    theme: ThemeBase(themeData: medievalFantasyLightData),
+  ),
+  formosaGLobal(
+    name: 'formosaGLobal',
+    theme: ThemeBase(themeData: formosaGLobalData),
+  ),
   tourism(
     name: 'tourism',
     theme: ThemeBase(themeData: tourismData),
   );
+
 
   final String _name;
   final ThemeBase _data;

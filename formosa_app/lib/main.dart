@@ -36,7 +36,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: const Text('Side Attack Table')),
+        appBar: AppBar(title: const Text('Anti-Side-Channel Attack Table')),
         body: wordSource.isEmpty
             ? const SizedBox()
             : SingleChildScrollView(

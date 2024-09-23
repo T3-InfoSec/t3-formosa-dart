@@ -1,4 +1,4 @@
-const Map<String, dynamic> medievalFantasyLightData = {
+const Map<String, dynamic> formosaGLobalData = {
   "FILLING_ORDER": ["ORIGIN1", "PROFESSION1", "ORIGIN2", 'PROFESSION2', "WILDCARD", "PLACE"],
   "NATURAL_ORDER": ["ORIGIN1", "PROFESSION1", "ORIGIN2", 'PROFESSION2', "WILDCARD", "PLACE"],
   "ORIGIN1": {
