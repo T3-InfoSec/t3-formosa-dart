@@ -18,6 +18,31 @@ class TableSelectorMobile extends StatefulWidget {
 }
 
 class _TableSelectorMobileState extends State<TableSelectorMobile> {
+  
+  static const platform = MethodChannel('com.example.formosa_app.volume_buttons');
+
+  Future<void> _startListeningForVolumeTap() async {
+    platform.setMethodCallHandler((call) async {
+      if (call.method == 'onVolumeButtonPressed') {
+        final button = call.arguments['button'];
+        final pressType = call.arguments['pressType'];
+        setState(() {
+          String vBtn = button.toString().split('_').last;
+          if (pressType == 'short') {
+            _onDirectionTapped(vBtn);
+          }
+          if (pressType == 'long') {
+            if (vBtn == 'up') {
+              _goToNextPage();
+            } else {
+              _goToPreviousPage();
+            }
+          }
+        });
+      }
+    });
+  }
+
   List<String> rowCombinations = [
     'up-down',
     'down-up',
@@ -115,6 +140,7 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
   @override
   void initState() {
     super.initState();
+    _startListeningForVolumeTap();
     _updateWordsForPage(currentPage);
     // Force landscape mode
     SystemChrome.setPreferredOrientations([
