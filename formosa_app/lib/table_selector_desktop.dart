@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class LabelGrid extends StatefulWidget {
-  const LabelGrid({
+class TableSelectorDesktop extends StatefulWidget {
+  const TableSelectorDesktop({
     super.key,
     required this.wordSource,
     required this.onWordSelected,
@@ -12,10 +12,10 @@ class LabelGrid extends StatefulWidget {
   final Function(bool) onWordSelected;
 
   @override
-  State<LabelGrid> createState() => _LabelGridState();
+  State<TableSelectorDesktop> createState() => _TableSelectorDesktopState();
 }
 
-class _LabelGridState extends State<LabelGrid> {
+class _TableSelectorDesktopState extends State<TableSelectorDesktop> {
   final List<String> keyboardCharacters = ['a', 's', 'd', 'f', 'j', 'k', 'l', ';'];
   final List<String> leftLabelCharacters = ['k', 'a', 's', 'd', 'f', 'j', 'l', ';'];
 
@@ -26,7 +26,8 @@ class _LabelGridState extends State<LabelGrid> {
   List<String>? _gridWords;
 
   final FocusNode _focusNode = FocusNode();
-
+  // mobile [(up-down-up),(down-up-up),(up-down-down)] etc
+  // or force potrait ?
   @override
   void initState() {
     super.initState();
@@ -41,7 +42,7 @@ class _LabelGridState extends State<LabelGrid> {
   }
 
   @override
-  void didUpdateWidget(covariant LabelGrid oldWidget) {
+  void didUpdateWidget(covariant TableSelectorDesktop oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.wordSource != oldWidget.wordSource) {
       _generateLabelsAndGridWords();
@@ -128,7 +129,6 @@ class _LabelGridState extends State<LabelGrid> {
 
     // Shuffle the wordSource to get random words
     List<String> shuffledWordSource = List.from(widget.wordSource);
-    
 
     for (int row = 0; row < rowCount; row++) {
       for (int col = 0; col < colCount; col++) {
@@ -186,6 +186,7 @@ class _LabelGridState extends State<LabelGrid> {
 
   // Function to handle the word selection based on user input
   void _handleSelection() {
+    //TODO make this optional
     bool isHighlighted = false;
 
     for (var gridWord in _gridWords!) {
@@ -302,7 +303,7 @@ class _LabelGridState extends State<LabelGrid> {
                                 ),
                                 child: Text(
                                   _gridWords![index],
-                                  style: const TextStyle(fontSize: 12),
+                                  style: const TextStyle(fontSize: 15),
                                 ),
                               );
                             },

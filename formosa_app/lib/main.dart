@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:formosa_app/table_selector.dart';
+import 'package:formosa_app/table_selector_desktop.dart';
+import 'package:formosa_app/table_selector_mobile.dart';
 import 'package:t3_formosa/formosa.dart';
 
 void main() {
@@ -36,38 +39,70 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: const Text('Anti-Side-Channel Attack Table')),
-        body: wordSource.isEmpty
-            ? const SizedBox()
-            : SingleChildScrollView(
-                child: LabelGrid(
-                  wordSource: wordSource,
-                  onWordSelected: (bool isValid) {
-                    if (isValid) {
-                      setState(() {
-                        if (_selectedOrderIndex + 1 < _nOrder.length) {
-                          _selectedOrderIndex++;
-                        } else {
-                          showAdaptiveDialog(
-                            context: context,
-                            builder: (context) => const AlertDialog.adaptive(
-                              title: Text("Done"),
-                              content: Text('Process is completed!'),
-                            ),
-                          );
-                          return;
-                        }
-                        _currentOrder = _nOrder[_selectedOrderIndex];
+          body: wordSource.isEmpty
+              ? const SizedBox()
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (Platform.isAndroid || Platform.isIOS) {
+                      return TableSelectorMobile(
+                        wordSource: wordSource,
+                        onWordSelected: (isValid, word) {
+                          print("Is valid? for $word");
+                          if (isValid) {
+                            setState(() {
+                              if (_selectedOrderIndex + 1 < _nOrder.length) {
+                                _selectedOrderIndex++;
+                              } else {
+                                showAdaptiveDialog(
+                                  context: context,
+                                  builder: (context) => const AlertDialog.adaptive(
+                                    title: Text("Done"),
+                                    content: Text('Process is completed!'),
+                                  ),
+                                );
+                                return;
+                              }
+                              _currentOrder = _nOrder[_selectedOrderIndex];
 
-                        final nextTarget = _getListByOrder(_currentOrder);
+                              final nextTarget = _getListByOrder(_currentOrder);
 
-                        wordSource = nextTarget;
-                      });
+                              wordSource = nextTarget;
+                            });
+                          }
+                        },
+                      );
+                    } else {
+                      return SingleChildScrollView(
+                        child: TableSelectorDesktop(
+                          wordSource: wordSource,
+                          onWordSelected: (bool isValid) {
+                            if (isValid) {
+                              setState(() {
+                                if (_selectedOrderIndex + 1 < _nOrder.length) {
+                                  _selectedOrderIndex++;
+                                } else {
+                                  showAdaptiveDialog(
+                                    context: context,
+                                    builder: (context) => const AlertDialog.adaptive(
+                                      title: Text("Done"),
+                                      content: Text('Process is completed!'),
+                                    ),
+                                  );
+                                  return;
+                                }
+                                _currentOrder = _nOrder[_selectedOrderIndex];
+
+                                final nextTarget = _getListByOrder(_currentOrder);
+
+                                wordSource = nextTarget;
+                              });
+                            }
+                          },
+                        ),
+                      );
                     }
                   },
-                ),
-              ),
-      ),
+                )),
     );
   }
 
