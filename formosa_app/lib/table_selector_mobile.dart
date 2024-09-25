@@ -18,7 +18,6 @@ class TableSelectorMobile extends StatefulWidget {
 }
 
 class _TableSelectorMobileState extends State<TableSelectorMobile> {
-  
   static const platform = MethodChannel('com.example.formosa_app.volume_buttons');
 
   Future<void> _startListeningForVolumeTap() async {
@@ -28,6 +27,7 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
         final pressType = call.arguments['pressType'];
         setState(() {
           String vBtn = button.toString().split('_').last;
+          print("VVV $vBtn");
           if (pressType == 'short') {
             _onDirectionTapped(vBtn);
           }

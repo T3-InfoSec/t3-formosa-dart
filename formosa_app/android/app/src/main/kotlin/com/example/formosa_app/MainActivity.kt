@@ -28,9 +28,9 @@ class MainActivity: FlutterActivity() {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            // Start a delayed runnable to mark it as a long press if held for 500 ms
             handler.postDelayed({
                 isLongPress = true
-                notifyFlutter(keyCode, "long")
             }, 500) // Long press threshold (500 ms)
 
             return true
@@ -40,11 +40,15 @@ class MainActivity: FlutterActivity() {
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            if (!isLongPress) {
+            // Check if it was a long press
+            if (isLongPress) {
+                notifyFlutter(keyCode, "long")
+            } else {
                 notifyFlutter(keyCode, "short")
             }
+            // Reset state after the key is released
             isLongPress = false
-            handler.removeCallbacksAndMessages(null) // Remove long press callback
+            handler.removeCallbacksAndMessages(null) // Remove any pending long press callbacks
             return true
         }
         return super.onKeyUp(keyCode, event)
