@@ -4,47 +4,47 @@ import 'theme_base.dart';
 enum FormosaTheme {
   bip39(
     name: 'bip39',
-    theme: ThemeBase(themeData: bip39Data),
+    data: ThemeBase(themeData: bip39Data),
   ),
   bip39French(
     name: 'bip39_french',
-    theme: ThemeBase(themeData: bip39FrenchData),
+    data: ThemeBase(themeData: bip39FrenchData),
   ),
   copyLeft(
     name: 'copy_left',
-    theme: ThemeBase(themeData: copyLeftData),
+    data: ThemeBase(themeData: copyLeftData),
   ),
   cutePets(
     name: 'cute_pets',
-    theme: ThemeBase(themeData: cutePetsData),
+    data: ThemeBase(themeData: cutePetsData),
   ),
   farmAnimals(
     name: 'farm_animals',
-    theme: ThemeBase(themeData: farmAnimalsData),
+    data: ThemeBase(themeData: farmAnimalsData),
   ),
   finances(
     name: 'finances',
-    theme: ThemeBase(themeData: financesData),
+    data: ThemeBase(themeData: financesData),
   ),
   medievalFantasy(
     name: 'medieval_fantasy',
-    theme: ThemeBase(themeData: medievalFantasyData),
+    data: ThemeBase(themeData: medievalFantasyData),
   ),
   sciFi(
     name: 'sci_fi',
-    theme: ThemeBase(themeData: sciFiData),
+    data: ThemeBase(themeData: sciFiData),
   ),
   tourism(
     name: 'tourism',
-    theme: ThemeBase(themeData: tourismData),
+    data: ThemeBase(themeData: tourismData),
   );
 
   final String _name;
   final ThemeBase _data;
 
-  const FormosaTheme({required name, required theme})
+  const FormosaTheme({required name, required data})
       : _name = name,
-        _data = theme;
+        _data = data;
 
   String get name => _name;
 
