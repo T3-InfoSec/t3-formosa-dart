@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:formosa_app/mobile_comb_icons.dart';
 import 'package:vibration/vibration.dart';
 
 class TableSelectorMobile extends StatefulWidget {
@@ -20,6 +21,17 @@ class TableSelectorMobile extends StatefulWidget {
 }
 
 class _TableSelectorMobileState extends State<TableSelectorMobile> {
+  @override
+  void didUpdateWidget(covariant TableSelectorMobile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.wordSource != oldWidget.wordSource) {
+      _reset();
+      _randomizeCombinations();
+      currentPage = 0;
+      _updateWordsForPage(currentPage);
+    }
+  }
+
   static const platform = MethodChannel('com.example.formosa_app.volume_buttons');
 
   Future<void> _startListeningForVolumeTap() async {
@@ -94,42 +106,70 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
 
   void _finalizeCombination() {
     String combined = '$combinationInputHz~$combinationInputVt';
+    int combinedCount = '$combinationInputHz-$combinationInputVt'.split('-').length;
 
+    // Add the current combination to the selected list
     setState(() {
       selectedCombination.add(combined);
     });
 
-    // Find the matching word for the combination
+    // Find if the combination exists in the grid
     String? selectedWord;
     for (var wordEntry in wordsSource32) {
       List<String> parts = wordEntry.split('~');
       String hzCombination = parts[0];
       String vtCombination = parts[1];
       if (hzCombination == combinationInputHz && vtCombination == combinationInputVt) {
-        selectedWord = parts[2]; // The word is the third part
+        selectedWord = parts[2];
         break;
       }
     }
 
-    // Reset for next capturing session
-    combinationInputHz = '';
-    combinationInputVt = '';
-    capturingHorizontal = true;
-
-    final hzAndVt = selectedCombination.toList().join('~');
-    final hzAndVtCount = hzAndVt.split('~').length;
-
-    if (hzAndVtCount == 2) {
-      Future.delayed(const Duration(seconds: 2), () {
-        _randomizeCombinations();
-        if (selectedWord != null) {
-          widget.onWordSelected(true, selectedWord);
+    if (combinedCount == 6) {
+      if (selectedWord != null) {
+        if (isShowHighlight) {
+          Future.delayed(const Duration(seconds: 2), () {
+            widget.onWordSelected(true, selectedWord!);
+            _reset();
+          });
+        } else {
+          _navigateThroughPagesUntilLast(selectedWord);
         }
-        setState(() {
-          selectedCombination.clear();
-        });
-      });
+      } else {
+        _reset();
+      }
     }
+    setState(() {});
+  }
+
+  Future<void> _navigateThroughPagesUntilLast(String selectedWord) async {
+    int totalPages = (widget.wordSource.length + wordsPerPage - 1) ~/ wordsPerPage;
+
+    for (int pageIndex = currentPage; pageIndex < totalPages; pageIndex++) {
+      setState(() {
+        currentPage = pageIndex;
+        _updateWordsForPage(currentPage);
+        _randomizeCombinations();
+      });
+
+      await Future.delayed(const Duration(seconds: 1));
+    }
+
+    Future.delayed(const Duration(seconds: 1), () {
+      widget.onWordSelected(true, selectedWord);
+      _reset();
+    });
+  }
+
+  _reset() {
+    setState(() {
+      // Reset the inputs and reshuffle the grid combinations
+      combinationInputHz = '';
+      combinationInputVt = '';
+      capturingHorizontal = true;
+      _randomizeCombinations();
+      selectedCombination.clear();
+    });
   }
 
   void _onDirectionTapped(String direction) {
@@ -141,9 +181,10 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
   @override
   void initState() {
     super.initState();
+    _randomizeCombinations();
     _startListeningForVolumeTap();
     _updateWordsForPage(currentPage);
-    // Force landscape mode
+
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
@@ -295,7 +336,7 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: CombinationIcons(
                 combinationString: combination,
-                iconSize: 16,
+                iconSize: 11,
                 iconColor: Theme.of(context).colorScheme.primary,
               ),
             );
@@ -320,7 +361,7 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
                 color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: CombinationIcons(combinationString: rowCombinations[i], iconSize: 16),
+              child: CombinationIcons(combinationString: rowCombinations[i], iconSize: 11),
             ),
 
             // Middle grid items (words)
@@ -343,7 +384,7 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0).copyWith(bottom: 32),
+                      padding: const EdgeInsets.all(8.0).copyWith(bottom: 20),
                       child: GestureDetector(
                         onTap: () {
                           if (kDebugMode) {
@@ -353,7 +394,7 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
                         child: Text(
                           displayWord,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 9.5,
                             fontWeight: FontWeight.w800,
                             color: isHighlighted ? Colors.white : null,
                           ),
@@ -375,40 +416,5 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
     }
 
     return rows;
-  }
-}
-
-class CombinationIcons extends StatelessWidget {
-  const CombinationIcons({
-    required this.combinationString,
-    this.iconSize = 32,
-    this.iconColor,
-    super.key,
-  });
-
-  final String combinationString;
-  final double iconSize;
-  final Color? iconColor;
-
-  @override
-  Widget build(BuildContext context) {
-    List<String> upDowns = combinationString.split('-');
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        upDowns.length,
-        (index) {
-          String ud = upDowns[index];
-
-          switch (ud) {
-            case 'up':
-              return Icon(Icons.arrow_upward, size: iconSize, color: iconColor);
-            case 'down':
-              return Icon(Icons.arrow_downward, size: iconSize, color: iconColor);
-          }
-          return const SizedBox();
-        },
-      ),
-    );
   }
 }

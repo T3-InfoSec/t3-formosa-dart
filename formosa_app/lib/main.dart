@@ -25,6 +25,7 @@ class _MyAppState extends State<MyApp> {
   int sentenceCount = 1;
   List<String> addedWordToSentence = [];
   late Formosa formosa;
+
   @override
   void initState() {
     super.initState();
@@ -32,86 +33,83 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _nOrder = formosa.formosaTheme.data.naturalOrder;
       _currentOrder = _nOrder[_selectedOrderIndex];
-      List<String> initialTarget = _getListByOrder(_currentOrder);
-      wordSource = initialTarget;
+      wordSource = _getListByOrder(_currentOrder); // Initialize wordSource
     });
   }
-  
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-          body: wordSource.isEmpty
-              ? const SizedBox()
-              : LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (Platform.isAndroid || Platform.isIOS) {
-                      return TableSelectorMobile(
-                        wordSource: wordSource,
-                        wLabel: '${_selectedOrderIndex + 1} of ${_nOrder.length} - ($_currentOrder)',
-                        onWordSelected: (isValid, word) {                          
-                          if (isValid) {
-                            setState(() {
-                              if (_selectedOrderIndex + 1 < _nOrder.length) {
-                                _selectedOrderIndex++;
-                              } else {
-                                showAdaptiveDialog(
-                                  context: context,
-                                  builder: (context) => const AlertDialog.adaptive(
-                                    title: Text("Done"),
-                                    content: Text('Process is completed!'),
-                                  ),
-                                );
-                                return;
-                              }
-                              addedWordToSentence.add(word);
-                              _currentOrder = _nOrder[_selectedOrderIndex];
-
-                              final nextTarget = _getListByOrder(_currentOrder);
-
-                              wordSource = nextTarget;
-                            });
+        body: wordSource.isEmpty
+            ? const SizedBox()
+            : LayoutBuilder(builder: (context, constraints) {
+                if (Platform.isAndroid || Platform.isIOS) {
+                  return TableSelectorMobile(
+                    wordSource: wordSource,
+                    wLabel: '${_selectedOrderIndex + 1} of ${_nOrder.length} - ($_currentOrder)',
+                    onWordSelected: (isValid, word) {
+                      if (isValid) {
+                        setState(() {
+                          // Update the current order first
+                          if (_selectedOrderIndex < _nOrder.length - 1) {
+                            // Increment only if there's a next order
+                            _selectedOrderIndex++;
+                            _currentOrder = _nOrder[_selectedOrderIndex];
+                            print('CURRENT ORDER $_currentOrder');
+                            wordSource = _getListByOrder(_currentOrder);
+                          } else {
+                            // Process is done, show completion dialog
+                            showAdaptiveDialog(
+                              context: context,
+                              builder: (context) => const AlertDialog.adaptive(
+                                title: Text("Done"),
+                                content: Text('Process is completed!'),
+                              ),
+                            );
                           }
-                        },
-                      );
-                    } else {
-                      return SingleChildScrollView(
-                        child: TableSelectorDesktop(
-                          wordSource: wordSource,
-                          onWordSelected: (bool isValid) {
-                            if (isValid) {
-                              setState(() {
-                                if (_selectedOrderIndex + 1 < _nOrder.length) {
-                                  _selectedOrderIndex++;
-                                } else {
-                                  showAdaptiveDialog(
-                                    context: context,
-                                    builder: (context) => const AlertDialog.adaptive(
-                                      title: Text("Done"),
-                                      content: Text('Process is completed!'),
-                                    ),
-                                  );
-                                  return;
-                                }
-                                _currentOrder = _nOrder[_selectedOrderIndex];
-
-                                final nextTarget = _getListByOrder(_currentOrder);
-
-                                wordSource = nextTarget;
-                              });
+                          // Now add the word to the sentence after updating the index
+                          addedWordToSentence.add(word);
+                        });
+                      }
+                    },
+                  );
+                } else {
+                  return SingleChildScrollView(
+                    child: TableSelectorDesktop(
+                      wordSource: wordSource,
+                      onWordSelected: (bool isValid) {
+                        if (isValid) {
+                          setState(() {
+                            // Update the current order first
+                            if (_selectedOrderIndex < _nOrder.length - 1) {
+                              _selectedOrderIndex++;
+                              _currentOrder = _nOrder[_selectedOrderIndex];
+                              wordSource = _getListByOrder(_currentOrder);
+                            } else {
+                              // Process is done, show completion dialog
+                              showAdaptiveDialog(
+                                context: context,
+                                builder: (context) => const AlertDialog.adaptive(
+                                  title: Text("Done"),
+                                  content: Text('Process is completed!'),
+                                ),
+                              );
                             }
-                          },
-                        ),
-                      );
-                    }
-                  },
-                )),
+                            // Now add the word to the sentence after updating the index
+                            // addedWordToSentence.add(word); // Uncomment this if needed
+                          });
+                        }
+                      },
+                    ),
+                  );
+                }
+              }),
+      ),
     );
   }
 
   List<String> _getListByOrder(String order) {
-    List<String> list = List.from(formosa.formosaTheme.data[order]["TOTAL_LIST"]);
-    return list;
+    return List.from(formosa.formosaTheme.data[order]["TOTAL_LIST"]);
   }
 }
