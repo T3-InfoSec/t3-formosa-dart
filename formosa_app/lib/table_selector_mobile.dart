@@ -7,11 +7,13 @@ class TableSelectorMobile extends StatefulWidget {
   const TableSelectorMobile({
     required this.wordSource,
     required this.onWordSelected,
+    required this.wLabel,
     super.key,
   });
 
   final List<String> wordSource;
   final Function(bool, String) onWordSelected;
+  final String wLabel;
 
   @override
   State<TableSelectorMobile> createState() => _TableSelectorMobileState();
@@ -27,7 +29,6 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
         final pressType = call.arguments['pressType'];
         setState(() {
           String vBtn = button.toString().split('_').last;
-          print("VVV $vBtn");
           if (pressType == 'short') {
             _onDirectionTapped(vBtn);
           }
@@ -207,7 +208,7 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
     setState(() {
       rowCombinations.shuffle();
       columnCombinations.shuffle();
-      _updateWordsForPage(currentPage); // Update grid after shuffling
+      _updateWordsForPage(currentPage);
     });
   }
 
@@ -215,7 +216,7 @@ class _TableSelectorMobileState extends State<TableSelectorMobile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Anti-Side-Channel Attack Table'),
+        title: Text(widget.wLabel),
         actions: [
           InkWell(
             borderRadius: BorderRadius.circular(30),

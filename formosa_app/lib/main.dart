@@ -21,7 +21,9 @@ class _MyAppState extends State<MyApp> {
   String _currentOrder = '';
   List<String> _nOrder = [];
   List<String> wordSource = [];
-  FormosaTheme formosaTheme = FormosaTheme.medievalFantasy;
+  FormosaTheme formosaTheme = FormosaTheme.formosaGLobal;
+  int sentenceCount = 1;
+  List<String> addedWordToSentence = [];
   late Formosa formosa;
   @override
   void initState() {
@@ -34,6 +36,7 @@ class _MyAppState extends State<MyApp> {
       wordSource = initialTarget;
     });
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +49,8 @@ class _MyAppState extends State<MyApp> {
                     if (Platform.isAndroid || Platform.isIOS) {
                       return TableSelectorMobile(
                         wordSource: wordSource,
-                        onWordSelected: (isValid, word) {
-                          print("Is valid? for $word");
+                        wLabel: '${_selectedOrderIndex + 1} of ${_nOrder.length} - ($_currentOrder)',
+                        onWordSelected: (isValid, word) {                          
                           if (isValid) {
                             setState(() {
                               if (_selectedOrderIndex + 1 < _nOrder.length) {
@@ -62,6 +65,7 @@ class _MyAppState extends State<MyApp> {
                                 );
                                 return;
                               }
+                              addedWordToSentence.add(word);
                               _currentOrder = _nOrder[_selectedOrderIndex];
 
                               final nextTarget = _getListByOrder(_currentOrder);
