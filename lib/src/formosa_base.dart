@@ -40,34 +40,132 @@ class Formosa {
     return foundThemes[0].label;
   }
 
-  // TODO: Complete the implementation.
-  String expand(dynamic formosa) {
-    return '';
+  /// Returns a list of words from [entropy] using [formosaTheme].
+  String expand(dynamic mnemonic) {
+    // If mnemonic is a List, join it into a string.
+    if (mnemonic is List<String>) {
+      mnemonic = mnemonic.join(" ");
+    }
+
+    // Normalize the mnemonic string.
+    List<String> mnemonicWords = normalizeString(mnemonic).split(" ");
+
+    // Handle BIP39 theme.
+    if (isBip39Theme()) {
+      return mnemonicWords.map((word) => expandWord(word)).join(" ");
+    }
+
+    var wordsDict = _formosaTheme.data;
+
+    int phraseSize = wordsDict.wordsPerPhrase();
+    List<List<String>> sentences = wordsDict.getSentences(mnemonicWords);
+
+    // Convert the tuple List<(String, String)> to List<List<String>>
+    List<List<String>> leadingSequence = wordsDict.restrictionSequence().map((tuple) => [tuple.$1, tuple.$2]).toList();
+
+    List<String> expandedMnemonic = [];
+
+    for (var eachPhrase in sentences) {
+      List<String> expandedPhrase = List.filled(phraseSize, "");
+
+      // Call the restrictionPairs() function to get the list of pairs
+      List<(String, String)> pairs = wordsDict.restrictionPairs(eachPhrase);
+
+      for (int i = 0; i < pairs.length; i++) {
+        var eachPair = pairs[i];
+        var eachSequence = leadingSequence[i];
+
+        String syntacticLeads = eachSequence[0];
+        String syntacticLed = eachSequence[1];
+
+        String mnemonicLeads = eachPair.$1;
+        String mnemonicLed = eachPair.$2;
+
+        // Check for prime syntactic leads
+        if (wordsDict.primeSyntacticLeads().contains(syntacticLeads)) {
+          int wordIndex = wordsDict.naturalIndex(syntacticLeads);
+          expandedPhrase[wordIndex] = expandWord(mnemonicLeads);
+        }
+
+        int ledByIndex = wordsDict.getLedByIndex(syntacticLed);
+        var ledByMapping = wordsDict.getLedByMapping(syntacticLed);
+        int wordIndex = wordsDict.naturalIndex(syntacticLed);
+
+        if (ledByMapping.containsKey(expandedPhrase[ledByIndex])) {
+          expandedPhrase[wordIndex] = expandWord(mnemonicLed);
+        } else {
+          expandedPhrase[wordIndex] = mnemonicLed;
+        }
+      }
+
+      // Complement for non-restricted themes
+      var missingLeads =
+          wordsDict.primeSyntacticLeads().toSet().difference(leadingSequence.map((leads) => leads[0]).toSet());
+
+      for (String syntacticLeads in missingLeads) {
+        int wordIndex = wordsDict.naturalIndex(syntacticLeads);
+        String eachLeads = eachPhrase[wordsDict.fillingOrder.indexOf(syntacticLeads)];
+        expandedPhrase[wordIndex] = expandWord(eachLeads);
+      }
+
+      expandedMnemonic.addAll(expandedPhrase);
+    }
+
+    String expandedMnemonicString = expandedMnemonic.join(" ");
+
+    return expandedMnemonicString;
   }
 
   /// Returns formosa words from [password].
   ///
   /// Recover the formosa words from the [password]. The [password]
   /// contains the first letters of each word from the formosa.
-  // TODO: Complete the implementation.
-  String expandPassword(String password) {
-    int n = (isBip39Theme()) ? 4 : 2;
 
+  String expandPassword(String password) {
+    /*
+      Try to recover the mnemonic words from the password,
+      which are the first letters of each word.
+    */
+    final isBip39 = isBip39Theme();
+    int n = isBip39 ? 4 : 2;
     if (password.length % n != 0) {
       return password;
     }
 
-    return '';
+    List<String> expandedPassword = [];
+
+    for (int i = 0; i < password.length; i += n) {
+      if (isBip39 && i + n - 1 < password.length && password[i + n - 1] == '-') {
+        expandedPassword.add(password.substring(i, i + n - 1));
+      } else {
+        expandedPassword.add(password.substring(i, i + n));
+      }
+    }
+
+    return expand(expandedPassword.join(" "));
   }
 
-  // TODO: Complete the implementation.
-  String expandWord(dynamic formosa) {
-    return '';
+  /// Returns formosa words from [prefix] and [wordlist].
+  String expandWord(String prefix) {
+    final wordlist = formosaTheme.data.wordList();
+    if (wordlist.contains(prefix)) {
+      return prefix;
+    } else {
+      List<String> matches = wordlist.where((word) => word.startsWith(prefix)).toList();
+      if (matches.length == 1) {
+        return matches[0];
+      } else {
+        return prefix;
+      }
+    }
   }
 
   /// Returns a formatted [formosa] in unique way.
   String formatFormosa(dynamic formosa) {
-    if (formosa is String) {
+    if (formosa.isEmpty) {
+      return '';
+    }
+    if (formosa is String) {  
       formosa = formosa.split(' ');
     }
 
@@ -139,15 +237,12 @@ class Formosa {
 
     String concatenationBits = '';
     for (int i = 0; phraseIndexes.length > i; i++) {
-      concatenationBits +=
-          (phraseIndexes[i].toRadixString(2).padLeft(bitsFillSequence[i], '0'));
+      concatenationBits += (phraseIndexes[i].toRadixString(2).padLeft(bitsFillSequence[i], '0'));
     }
     List<int> entropy_ = List.filled(entropyLengthBits ~/ 8, 0);
     int bitInt;
 
-    for (int entropyId = 0;
-        (entropyLengthBits / 8) > entropyId;
-        entropyId += 1) {
+    for (int entropyId = 0; (entropyLengthBits / 8) > entropyId; entropyId += 1) {
       entropy_[entropyId] = 0;
       for (int i = 0; 8 > i; i++) {
         if (concatenationBits[(entropyId * 8) + i] == '1') {
@@ -159,9 +254,7 @@ class Formosa {
       }
     }
     List<int> entropy = List.filled(entropyLengthBits ~/ 8, 0);
-    for (int entropyId = 0;
-        (entropyLengthBits / 8) > entropyId;
-        entropyId += 1) {
+    for (int entropyId = 0; (entropyLengthBits / 8) > entropyId; entropyId += 1) {
       entropy[entropyId] = int.parse(entropy_[entropyId].toString());
     }
     return entropy;
@@ -184,8 +277,7 @@ class Formosa {
 
     if (data is String) {
       data = utf8.encode(data);
-      int paddingLength =
-          ((leastMultiple - (data.length % leastMultiple))) % leastMultiple;
+      int paddingLength = ((leastMultiple - (data.length % leastMultiple))) % leastMultiple;
       List<int> padding = [];
       for (int i = 0; paddingLength > i; i++) {
         padding.add(32);
