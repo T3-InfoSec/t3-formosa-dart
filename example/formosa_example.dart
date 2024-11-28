@@ -1,18 +1,22 @@
+import 'dart:math';
+import 'dart:typed_data';
 import 'package:t3_formosa/formosa.dart';
 
 void main() {
-  Formosa formosa = Formosa(formosaTheme: FormosaTheme.finances);
+  Uint8List randomEntropy = generateRandomEntropy();
 
-  List<int> randomEntropy = [33, 254, 255, 33, 255, 56, 18, 51];
-  String resultingFormosa = formosa.toFormosa(randomEntropy);
-  List<int> entropyFromFormosa = formosa.toEntropy(resultingFormosa);
+  Formosa formosa = Formosa(formosaTheme: FormosaTheme.bip39, entropy: randomEntropy);
 
-  print(resultingFormosa);
-  print(entropyFromFormosa);
+  String formosaSeed = formosa.seed;
 
-  if (randomEntropy.toString() == entropyFromFormosa.toString()) {
-    print('Equal!');
-  } else {
-    print('Not Equal!');
+  print(formosaSeed);
+}
+
+Uint8List generateRandomEntropy() {
+  Uint8List randomEntropy = Uint8List(16);
+  Random random = Random();
+  for (int i = 0; i < randomEntropy.length; i++) {
+    randomEntropy[i] = random.nextInt(256); // Generates a number between 0 and 255
   }
+  return randomEntropy;
 }
