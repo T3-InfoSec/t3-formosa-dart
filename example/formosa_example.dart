@@ -7,9 +7,9 @@ void main() {
 
   Formosa formosa = Formosa(formosaTheme: FormosaTheme.bip39, entropy: randomEntropy);
 
-  String formosaSeed = formosa.seed;
+  String formosaMnemonic = formosa.mnemonic;
 
-  print(formosaSeed);
+  print(formosaMnemonic);
 }
 
 Uint8List generateRandomEntropy() {

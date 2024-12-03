@@ -6,12 +6,12 @@ void main() {
     late FormosaTheme theme = FormosaTheme.bip39;
     late List<int> entropy = [0, 0, 0, 0];
 
-    test('should initialize with provided entropy and generate seed', () {
+    test('should initialize with provided entropy and generate mnemonic', () {
       final formosa = Formosa(formosaTheme: theme, entropy: entropy);
 
       expect(formosa.entropy, equals(entropy));
 
-      expect(formosa.seed, isNotEmpty);
+      expect(formosa.mnemonic, isNotEmpty);
     });
 
     test('should throw ArgumentError when entropy length is not a multiple of 4', () {
@@ -22,22 +22,22 @@ void main() {
       );
     });
 
-    test('should update seed when entropy is updated', () {
+    test('should update mnemonic when entropy is updated', () {
       final formosa = Formosa(formosaTheme: theme, entropy: entropy);
 
-      final originalSeed = formosa.seed;
+      final originalMnemonic = formosa.mnemonic;
 
       final newEntropy = [1, 1, 1, 1];
       formosa.entropy = newEntropy;
 
-      expect(formosa.seed, isNot(originalSeed));
+      expect(formosa.mnemonic, isNot(originalMnemonic));
     });
 
-    test('should generate valid seed based on entropy', () {
+    test('should generate valid mnemonic based on entropy', () {
       final formosa = Formosa(formosaTheme: theme, entropy: entropy);
 
-      expect(formosa.seed, isA<String>());
-      expect(formosa.seed.split(' ').length, greaterThan(1));
+      expect(formosa.mnemonic, isA<String>());
+      expect(formosa.mnemonic.split(' ').length, greaterThan(1));
     });
   });
 }
