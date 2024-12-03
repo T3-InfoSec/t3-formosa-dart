@@ -1,3 +1,6 @@
+import 'dart:math';
+import 'dart:typed_data';
+
 import 'package:crypto/crypto.dart';
 
 import 'formosa_theme.dart';
@@ -6,7 +9,7 @@ import 'formosa_theme.dart';
 /// words implementation upon multiple supported themes.
 class Formosa {
   final FormosaTheme _formosaTheme;
-  late List<int> _entropy;
+  late Uint8List _entropy; // TODO: extends from Entropy
   late String _mnemonic;
 
   /// Creates an instance of Formosa using the given FormosaTheme and initial entropy.
@@ -15,7 +18,7 @@ class Formosa {
   /// and the words defined by the specified FormosaTheme.
   Formosa({
     required FormosaTheme formosaTheme,
-    required List<int> entropy,
+    required Uint8List entropy,
   })  : _formosaTheme = formosaTheme {
     _entropy = entropy;
     _mnemonic = _toMnemonic(entropy);
@@ -42,13 +45,13 @@ class Formosa {
   /// Returns the current [entropy] of this Formosa instance.
   ///
   /// The entropy serves as the binary source for generating the mnemonic phrase.
-  List<int> get entropy => _entropy;
+  Uint8List get entropy => _entropy;
 
   /// Updates the [entropy] of this Formosa instance and recalculates the mnemonic.
   ///
   /// Whenever the entropy changes, the mnemonic is automatically re-generated
   /// to reflect the new entropy state.
-  set entropy(List<int> newEntropy) {
+  set entropy(Uint8List newEntropy) {
     _entropy = newEntropy;
     _mnemonic = _toMnemonic(newEntropy);
   }
@@ -64,7 +67,7 @@ class Formosa {
   /// This process involves converting entropy bits into mnemonic phrases
   /// using the logic defined in the associated FormosaTheme. The mnemonic
   /// reflects the checksum-integrated mnemonic representation of the entropy.
-  String _toMnemonic(List<int> entropy) {
+  String _toMnemonic(Uint8List entropy) {
     int leastMultiple = 4;
     if (entropy.isEmpty || entropy.length % leastMultiple != 0) {
       throw ArgumentError(
@@ -89,60 +92,66 @@ class Formosa {
   }
 
   /// Returns the [entropy] from the current [mnemonic].
-  List<int> _toEntropy(String mnemonic) {
+  Uint8List _toEntropy(String mnemonic) {
     List<String> words = mnemonic.split(' ');
 
     int wordsSize = words.length;
     var wordsDict = formosaTheme.data;
-    int phraseAmount = wordsDict.getPhraseAmount(words);
+    
+    // Check if the number of words is a multiple of phraseSize
     int phraseSize = wordsDict.wordsPerPhrase();
-    int bitsPerChecksumBit = 33;
-    if ((wordsSize % phraseSize) != 0) {
-      // The number of [words] doesn't have good multiple.
-      return [0];
+    if (wordsSize % phraseSize != 0) {
+      // El número de palabras no es un múltiplo adecuado
+      return Uint8List(0); // Retorna una lista vacía si no es múltiplo
     }
-    // Look up all the words in the list and construct the
-    // concatenation of the original entropy and the checksum.
 
-    // Determining strength of the password
-    int numberPhrases = wordsSize ~/ wordsDict.wordsPerPhrase();
+    // Calculation of the total length in bits
+    int numberPhrases = wordsSize ~/ phraseSize;
     int concatenationLenBits = numberPhrases * wordsDict.bitsPerPhrase();
-    int checksumLengthBits = concatenationLenBits ~/ bitsPerChecksumBit.round();
+    int checksumLengthBits = concatenationLenBits ~/ 33;  // Ajustado para checksum
     int entropyLengthBits = concatenationLenBits - checksumLengthBits;
-    var phraseIndexes = wordsDict.getPhraseIndexes(words);
 
-    List bitsFillSequence = [];
-    for (int i = 0; phraseAmount > i; i++) {
-      bitsFillSequence += formosaTheme.data.bitsFillSequence();
-    }
+    // Get the word indexes
+    List<int> phraseIndexes = wordsDict.getPhraseIndexes(words);
 
-    String concatenationBits = '';
-    for (int i = 0; phraseIndexes.length > i; i++) {
-      concatenationBits +=
-          (phraseIndexes[i].toRadixString(2).padLeft(bitsFillSequence[i], '0'));
-    }
-    List<int> entropy_ = List.filled(entropyLengthBits ~/ 8, 0);
-    int bitInt;
+    // Construct the concatenation bit sequence
+    String concatenationBits = phraseIndexes.map((index) {
+      return index.toRadixString(2).padLeft(11, '0'); // 11 bits por palabra
+    }).join();
 
-    for (int entropyId = 0;
-        (entropyLengthBits / 8) > entropyId;
-        entropyId += 1) {
-      entropy_[entropyId] = 0;
-      for (int i = 0; 8 > i; i++) {
-        if (concatenationBits[(entropyId * 8) + i] == '1') {
-          bitInt = 1;
-        } else {
-          bitInt = 0;
+    // Create Uint8List to store the result
+    int byteLength = entropyLengthBits ~/ 8;
+    Uint8List entropy = Uint8List(byteLength);
+
+    // Fill the Uint8List with the corresponding bits
+    for (int i = 0; i < byteLength; i++) {
+      int byteStartIndex = i * 8;
+      int byteValue = 0;
+
+      // Extract the 8 bits corresponding to this byte
+      for (int j = 0; j < 8; j++) {
+        if (concatenationBits[byteStartIndex + j] == '1') {
+          byteValue |= (1 << (7 - j));
         }
-        entropy_[entropyId] |= (bitInt << (8 - 1 - i));
       }
+
+      entropy[i] = byteValue;
     }
-    List<int> entropy = List.filled(entropyLengthBits ~/ 8, 0);
-    for (int entropyId = 0;
-        (entropyLengthBits / 8) > entropyId;
-        entropyId += 1) {
-      entropy[entropyId] = int.parse(entropy_[entropyId].toString());
-    }
+
     return entropy;
+  }
+
+
+  static Uint8List generateRandomEntropy({int wordsNumber = 12}) { // TODO: move to Entropy
+    const int byteMaxValue = 256;
+    const double bytesPerWord = 1.33;    
+    final int entropyBytesForSeed = (wordsNumber * bytesPerWord).ceil();
+
+    Uint8List randomEntropy = Uint8List(entropyBytesForSeed);
+    Random random = Random.secure();
+    for (int i = 0; i < randomEntropy.length; i++) {
+      randomEntropy[i] = random.nextInt(byteMaxValue);
+    }
+    return randomEntropy;
   }
 }
