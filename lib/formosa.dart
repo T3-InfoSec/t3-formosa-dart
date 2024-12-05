@@ -15,3 +15,4 @@ library;
 
 export 'src/formosa_base.dart';
 export 'src/formosa_theme.dart';
+export 'src/themes/bip39.dart';
