@@ -17,11 +17,12 @@ class Formosa extends FormosaEntropy {
   /// and the words defined by the specified FormosaTheme.
   @override
   factory Formosa.fromMnemonic(
-    FormosaTheme formosaTheme,
-    String mnemonic) {
-      Uint8List entropy = _toEntropy(mnemonic, formosaTheme);
-      return Formosa(entropy, formosaTheme);
-    }
+      String mnemonic, {
+      FormosaTheme formosaTheme = FormosaTheme.bip39,
+    }) {
+    Uint8List entropy = _toEntropy(mnemonic, formosaTheme);
+    return Formosa(entropy, formosaTheme);
+  }
   
   @override
   String getMnemonic() {
@@ -61,14 +62,13 @@ class Formosa extends FormosaEntropy {
     // Check if the number of words is a multiple of phraseSize
     int phraseSize = wordsDict.wordsPerPhrase();
     if (wordsSize % phraseSize != 0) {
-      // El número de palabras no es un múltiplo adecuado
-      return Uint8List(0); // Retorna una lista vacía si no es múltiplo
+      return Uint8List(0); 
     }
 
     // Calculation of the total length in bits
     int numberPhrases = wordsSize ~/ phraseSize;
     int concatenationLenBits = numberPhrases * wordsDict.bitsPerPhrase();
-    int checksumLengthBits = concatenationLenBits ~/ 33;  // Ajustado para checksum
+    int checksumLengthBits = concatenationLenBits ~/ 33;  
     int entropyLengthBits = concatenationLenBits - checksumLengthBits;
 
     // Get the word indexes
@@ -76,7 +76,7 @@ class Formosa extends FormosaEntropy {
 
     // Construct the concatenation bit sequence
     String concatenationBits = phraseIndexes.map((index) {
-      return index.toRadixString(2).padLeft(11, '0'); // 11 bits por palabra
+      return index.toRadixString(2).padLeft(11, '0'); 
     }).join();
 
     // Create Uint8List to store the result
