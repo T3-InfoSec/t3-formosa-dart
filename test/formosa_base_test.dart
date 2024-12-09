@@ -1,43 +1,43 @@
+import 'dart:typed_data';
+
 import 'package:t3_formosa/formosa.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('Formosa Class Tests', () {
     late FormosaTheme theme = FormosaTheme.bip39;
-    late List<int> entropy = [0, 0, 0, 0];
+    Uint8List entropy = Uint8List(4);
 
-    test('should initialize with provided entropy and generate seed', () {
-      final formosa = Formosa(formosaTheme: theme, entropy: entropy);
+    test('should initialize with provided entropy', () {
+      final formosa = Formosa(entropy, theme);
 
-      expect(formosa.entropy, equals(entropy));
-
-      expect(formosa.seed, isNotEmpty);
+      expect(formosa.value, equals(entropy));
     });
 
     test('should throw ArgumentError when entropy length is not a multiple of 4', () {
-      final invalidEntropy = [0, 1, 2];
+      final invalidEntropy = Uint8List.fromList([0, 1, 2]);
       expect(
-        () => Formosa(formosaTheme: theme, entropy: invalidEntropy),
+        () => Formosa(invalidEntropy, theme),
         throwsA(isA<ArgumentError>()),
       );
     });
 
-    test('should update seed when entropy is updated', () {
-      final formosa = Formosa(formosaTheme: theme, entropy: entropy);
+    test('should get mnemonic correctly', () {
+      final formosa = Formosa(entropy, theme);
 
-      final originalSeed = formosa.seed;
+      final originalMnemonic = formosa.getMnemonic();
 
-      final newEntropy = [1, 1, 1, 1];
-      formosa.entropy = newEntropy;
+      final newEntropy = Uint8List.fromList([1, 1, 1, 1]);
+      formosa.value = newEntropy;
 
-      expect(formosa.seed, isNot(originalSeed));
+      expect(formosa.getMnemonic(), isNot(originalMnemonic));
     });
 
-    test('should generate valid seed based on entropy', () {
-      final formosa = Formosa(formosaTheme: theme, entropy: entropy);
+    test('should generate valid mnemonic based on entropy', () {
+      final formosa = Formosa(entropy, theme);
 
-      expect(formosa.seed, isA<String>());
-      expect(formosa.seed.split(' ').length, greaterThan(1));
+      expect(formosa.getMnemonic(), isA<String>());
+      expect(formosa.getMnemonic().split(' ').length, greaterThan(1));
     });
   });
 }

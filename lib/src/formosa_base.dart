@@ -1,79 +1,103 @@
+import 'dart:typed_data';
+
 import 'package:crypto/crypto.dart';
+import 'package:t3_crypto_objects/crypto_objects.dart';
 
 import 'formosa_theme.dart';
 
 /// A wrap implementation upon bip39 for supporting semantically connected
 /// words implementation upon multiple supported themes.
-class Formosa {
-  final FormosaTheme _formosaTheme;
-  late List<int> _entropy;
-  late String _seed;
+class Formosa extends FormosaEntropy {
 
-  /// Creates an instance of Formosa using the given FormosaTheme and initial entropy.
+  Formosa(super.value, FormosaTheme super.formosaTheme);
+
+  /// Creates an instance of Formosa using the given [formosaTheme] and initial [mnemonic].
   ///
-  /// The seed is automatically derived based on the initial entropy provided
+  /// The [entropy] is automatically derived based on the initial mnemonic provided
   /// and the words defined by the specified FormosaTheme.
-  Formosa({
-    required FormosaTheme formosaTheme,
-    required List<int> entropy,
-  })  : _formosaTheme = formosaTheme {
-    _entropy = entropy;
-    _seed = _generateSeed(entropy);
+  @override
+  factory Formosa.fromMnemonic(
+      String mnemonic, {
+      FormosaTheme formosaTheme = FormosaTheme.bip39,
+    }) {
+    Uint8List entropy = _toEntropy(mnemonic, formosaTheme);
+    return Formosa(entropy, formosaTheme);
+  }
+  
+  @override
+  String getMnemonic() {
+    return _toMnemonic(value);
   }
 
-  /// Returns [formosaTheme] associated with this instance.
-  ///
-  /// The theme defines the logic for converting entropy bits into
-  /// mnemonic phrases and ensures compatibility with the desired word set.
-  FormosaTheme get formosaTheme => _formosaTheme;
-
-  /// Returns the current [entropy] of this Formosa instance.
-  ///
-  /// The entropy serves as the binary source for generating the mnemonic
-  /// seed phrase.
-  List<int> get entropy => _entropy;
-
-  /// Updates the [entropy] of this Formosa instance and recalculates the seed.
-  ///
-  /// Whenever the entropy changes, the seed is automatically re-generated
-  /// to reflect the new entropy state.
-  set entropy(List<int> newEntropy) {
-    _entropy = newEntropy;
-    _seed = _generateSeed(newEntropy);
-  }
-
-  /// Returns the mnemonic [seed] phrase derived from the current entropy.
-  ///
-  /// The seed is expressed as a human-readable sequence of words, ensuring
-  /// compatibility with BIP39 or similar mnemonic standards.
-  String get seed => _seed;
-
-  /// Generates the mnemonic [seed] phrase based on the given [entropy].
+  /// Generates the mnemonic phrase based on the given [value].
   ///
   /// This process involves converting entropy bits into mnemonic phrases
-  /// using the logic defined in the associated FormosaTheme. The seed
+  /// using the logic defined in the associated FormosaTheme. The mnemonic
   /// reflects the checksum-integrated mnemonic representation of the entropy.
-  String _generateSeed(List<int> entropy) {
-    int leastMultiple = 4;
-    if (entropy.isEmpty || entropy.length % leastMultiple != 0) {
-      throw ArgumentError(
-          'Entropy length must be a non-zero multiple of $leastMultiple');
-    }
+  String _toMnemonic(Uint8List value) {
+    var hashObject = sha256.convert(value);
 
-    var hashObject = sha256.convert(entropy);
-
-    String entropyBits = entropy
+    String entropyBits = value
         .map((e) => e.toRadixString(2).padLeft(8, '0'))
         .join();
 
     String checksumBits = hashObject.bytes
         .map((e) => e.toRadixString(2).padLeft(8, '0'))
         .join()
-        .substring(0, entropy.length * 8 ~/ 32);
+        .substring(0, value.length * 8 ~/ 32);
 
     String dataBits = entropyBits + checksumBits;
 
     List sentences = formosaTheme.data.getSentencesFromBits(dataBits);
     return sentences.join(' ');
+  }
+
+  /// Returns the entropy [value] from a given [mnemonic] and [formosaTheme]
+  static Uint8List _toEntropy(String mnemonic, FormosaTheme formosaTheme) {
+    List<String> words = mnemonic.split(' ');
+
+    int wordsSize = words.length;
+    var wordsDict = formosaTheme.data;
+    
+    // Check if the number of words is a multiple of phraseSize
+    int phraseSize = wordsDict.wordsPerPhrase();
+    if (wordsSize % phraseSize != 0) {
+      return Uint8List(0); 
+    }
+
+    // Calculation of the total length in bits
+    int numberPhrases = wordsSize ~/ phraseSize;
+    int concatenationLenBits = numberPhrases * wordsDict.bitsPerPhrase();
+    int checksumLengthBits = concatenationLenBits ~/ 33;  
+    int entropyLengthBits = concatenationLenBits - checksumLengthBits;
+
+    // Get the word indexes
+    List<int> phraseIndexes = wordsDict.getPhraseIndexes(words);
+
+    // Construct the concatenation bit sequence
+    String concatenationBits = phraseIndexes.map((index) {
+      return index.toRadixString(2).padLeft(11, '0'); 
+    }).join();
+
+    // Create Uint8List to store the result
+    int byteLength = entropyLengthBits ~/ 8;
+    Uint8List entropy = Uint8List(byteLength);
+
+    // Fill the Uint8List with the corresponding bits
+    for (int i = 0; i < byteLength; i++) {
+      int byteStartIndex = i * 8;
+      int byteValue = 0;
+
+      // Extract the 8 bits corresponding to this byte
+      for (int j = 0; j < 8; j++) {
+        if (concatenationBits[byteStartIndex + j] == '1') {
+          byteValue |= (1 << (7 - j));
+        }
+      }
+
+      entropy[i] = byteValue;
+    }
+
+    return entropy;
   }
 }
